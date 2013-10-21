@@ -24,8 +24,8 @@ methods to retrieve information about the URL.
 ```php
 <?php
 $parser = new \Riimu\Kit\UrlParser\UrlParser();
-$info = $parser->parseUrl('http://foo:bar@www.example.com:80/path/part?query=part#fragmentPart');
-echo $info->getHostname(); // Outputs 'www.example.com'
+$info = $parser->parseUrl('http://www.example.com');
+var_dump($info->getHostname()); // Outputs 'www.example.com'
 ```
 
 The `UrlInfo` class has several methods to help you get more information. The

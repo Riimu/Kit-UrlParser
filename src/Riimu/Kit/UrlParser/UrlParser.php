@@ -1,22 +1,56 @@
 <?php
 
+namespace Riimu\Kit\UrlParser;
+
 /**
+ * Provides a RFC 3986 compliant solution to URL parsing.
+ *
+ * UrlParser provides a more accurate solution to parsing URLs compared to PHP's
+ * built in parse_url(). The URLs are parsed only as defined in the spec. This
+ * however, means that this class will not parse URLs that are imcomplete or
+ * otherwise invalid according to the spec despite the fact that people commonly
+ * use these urls.
+ *
  * @author Riikka Kalliomäki <riikka.kalliomaki@gmail.com>
  * @copyright Copyright (c) 2013, Riikka Kalliomäki
  * @license http://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Riimu\Kit\UrlParser;
-
 class UrlParser
 {
+    /**
+     * PCRE pattern conforming the URI spec.
+     * @var string
+     */
     private $urlPattern;
+
+    /**
+     * PCRE pattern conforming the relative-ref spec.
+     * @var string
+     */
     private $relativePattern;
 
+    /**
+     * Creates a new UrlParser and builds the parsing patterns.
+     */
     public function __construct()
     {
         $this->buildPatterns();
     }
 
+    /**
+     * Parses the URL according to the URI spec and returns the UrlInfo object.
+     *
+     * This method will basically parse complete URLs. Essentially, the real
+     * requirement is that the URL must have the scheme defined. In other words
+     * 'www.example.com' will return null, but 'http://www.example.com' will
+     * return an UrlInfo object.
+     *
+     * Any string that cannot be parsed as an URL according to the spec will
+     * return a null value.
+     *
+     * @param string $url URL to parse
+     * @return UrlInfo|null UrlInfo object from the URL or null on failure
+     */
     public function parseUrl($url)
     {
         if (preg_match("#^$this->urlPattern$#", $url, $match)) {
@@ -26,6 +60,18 @@ class UrlParser
         }
     }
 
+    /**
+     * Parses the URL accordingn to relative-ref spec and returns UrlInfo object.
+     *
+     * The relative-ref spec differs from URI spec in that relative-ref never
+     * has the scheme part defined. Note that while 'www.example.com' can be
+     * parsed as relative url, it's actually part of the path and not the
+     * hostname. It will only be recognized as hostname if prefixed with two
+     * forward slashes, e.g. '//www.example.com'.
+     *
+     * @param string $url Relative URL to parse
+     * @return UrlInfo|null UrlInfo object from the URL or null on failure
+     */
     public function parseRelative($url)
     {
         if (preg_match("#^$this->relativePattern$#", $url, $match)) {
@@ -35,6 +81,9 @@ class UrlParser
         }
     }
 
+    /**
+     * Builds the PCRE patterns according to the RFC.
+     */
     private function buildPatterns()
     {
         $ALPHA = "A-Za-z";

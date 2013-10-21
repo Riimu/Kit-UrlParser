@@ -1,0 +1,23 @@
+{
+    "name": "riimu/kit-urlparser",
+    "type": "library",
+    "description": "RFC 3986 compliant url parsing library",
+    "keywords": ["parsing", "url", "rfc3986"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Riikka Kalliomäki",
+            "email": "riikka.kalliomaki@gmail.com",
+            "homepage": "http://riimu.net",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0"
+    },
+    "autoload": {
+        "psr-0": {
+            "Riimu\\Kit\\UrlParser": "src"
+        }
+    }
+}

@@ -23,4 +23,23 @@ class PatternBehaviorTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('Riimu\Kit\UrlParser\UrlInfo',
             $parser->parseUrl('http://www.example.com/path/part?query=part#fragmentPart'));
     }
+
+    public function testSpecDifferences()
+    {
+        $parser = new UrlParser();
+
+        $this->assertEquals('www.example.com',
+            $parser->parseUrl('http://www.example.com')->getHostname());
+
+        $this->assertSame(null, $parser->parseUrl('www.example.com'));
+        $this->assertSame(null, $parser->parseRelative('http://www.example.com'));
+
+        $path = $parser->parseRelative('www.example.com');
+        $this->assertEquals(false, $path->getHostname());
+        $this->assertEquals('www.example.com', $path->getPath());
+
+        $host = $parser->parseRelative('//www.example.com');
+        $this->assertEquals('www.example.com', $host->getHostname());
+        $this->assertEquals('', $host->getPath());
+    }
 }
