@@ -21,10 +21,12 @@ difference is simply the fact that relative urls do not have the scheme part.
 Both of these methods return an instance of `UrlInfo`, which provides additional
 methods to retrieve information about the URL.
 
+For example:
+
 ```php
 <?php
 $parser = new \Riimu\Kit\UrlParser\UrlParser();
-$info = $parser->parseUrl('http://www.example.com');
+$info = $parser->parseUrl('http://foo:bar@www.example.com:80/path/part?query=part#fragmentPart');
 var_dump($info->getHostname()); // Outputs 'www.example.com'
 ```
 
