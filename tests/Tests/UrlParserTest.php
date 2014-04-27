@@ -122,7 +122,7 @@ class UrlParserTest extends \PHPUnit_Framework_TestCase
     public function testGetPath()
     {
         $parser = new UrlParser();
-        $this->assertEquals(false, $parser->
+        $this->assertSame('', $parser->
             parseUrl('http://www.example.com')->getPath());
         $this->assertEquals('/path/to/file', $parser->
             parseUrl('http://www.example.com/path/to/file')->getPath());

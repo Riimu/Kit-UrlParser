@@ -42,4 +42,22 @@ class PatternBehaviorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('www.example.com', $host->getHostname());
         $this->assertEquals('', $host->getPath());
     }
+
+    public function testIP4AddressDots()
+    {
+        $parser = new UrlParser();
+        $this->assertEquals(false,
+            $parser->parseUrl('http://192-168-0-1')->getIPAddress(false));
+        $this->assertEquals('192.168.0.1',
+            $parser->parseUrl('http://192.168.0.1')->getIPAddress(false));
+    }
+
+    public function testMinimalURIs()
+    {
+        $parser = new UrlParser();
+        $this->assertEquals('a',
+            $parser->parseUrl('a:')->getScheme());
+        $this->assertSame('',
+            $parser->parseRelative('')->getPath());
+    }
 }

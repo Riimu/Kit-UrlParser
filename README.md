@@ -1,14 +1,15 @@
-# RFC 3986 compatible URL parsing library #
+# RFC 3986 URL parser #
 
-This library provides a more complete solution to URL parsing compared to PHP's
-built in function `parse_url()`. The parser implements a PCRE pattern built
-according to the RFC's specifications in order to accurately parse different
-parts of the url.
+This library provides a RFC 3986 compatible URL parser for parsing URLs into
+their components. The library uses a PCRE pattern based on the ABNF of said
+specification to accurately parse the URLs into the parts described in the
+RFC.
 
-Please note that library uses the term URL instead of the term URI, because the
-usage of this library is geared towards parsing URLs. The pattern itself,
-however simply implements the generic URI syntax and it is thus possible to
-parse any URIs that conform that specification.
+Compared to PHP's `parser_url()` function, this library provides a more accurate
+implementation and the provided `UrlInfo` class provides more information about
+the parsed URLs. While this library is intended for parsing URLs, it uses the
+generic URI syntax, which can be used to parse and validate any URIs. This
+library, however, is geared towards providing useful information from URLs.
 
 API documentation for the classes can be generated using apigen.
 
@@ -50,6 +51,11 @@ Most of these methods will return false if the information is not present in the
 url with some exceptions. For more accurate descriptions, see the api
 documentation.
 
+Note that almost all parts of the URI are optional in the specification. For
+example 'a:' is a valid URI while an empty string is completely valid relative
+reference. If this library is used to validate URLs, you should also make sure
+that scheme and hostname contain what you would expect them to be.
+
 ## Credits ##
 
-This library is copyright 2013 to Riikka Kalliomäki
+This library is copyright 2013 - 2014 to Riikka Kalliomäki
