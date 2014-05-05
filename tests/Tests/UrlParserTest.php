@@ -5,9 +5,7 @@
  * @copyright Copyright (c) 2013, Riikka Kalliomäki
  * @license http://opensource.org/licenses/mit-license.php MIT License
  */
-namespace Tests;
-
-use \Riimu\Kit\UrlParser\UrlParser;
+namespace Riimu\Kit\UrlParser;
 
 class UrlParserTest extends \PHPUnit_Framework_TestCase
 {

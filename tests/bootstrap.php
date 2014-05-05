@@ -1,4 +1,4 @@
 <?php
 
-require_once '../src/Riimu/Kit/UrlParser/UrlParser.php';
-require_once '../src/Riimu/Kit/UrlParser/UrlInfo.php';
+require_once '../src/UrlParser.php';
+require_once '../src/UrlInfo.php';

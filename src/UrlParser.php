@@ -101,10 +101,10 @@ class UrlParser
         $h16 = "[$HEXDIG]{1,4}";
         $ls32 = "(?:$h16:$h16|$IPv4address)";
 
-        $pchar = "[$unreserved$sub_delims:@]|$pct_encoded";
+        $pchar = "[$unreserved$sub_delims:@]++|$pct_encoded";
 
         // scheme
-        $scheme = "(?P<scheme>(?>[$ALPHA][$ALPHA$DIGIT+\-.]*))";
+        $scheme = "(?P<scheme>(?>[$ALPHA][$ALPHA$DIGIT+\-.]*+))";
 
         // authority
         $IPv6address = str_replace(' ', '', "(?P<IPv6address>" .
@@ -118,20 +118,20 @@ class UrlParser
             "(?:(?:(?:$h16:){0,5}$h16)?::            $h16 )|" .
             "(?:(?:(?:$h16:){0,6}$h16)?::                 ))");
 
-        $reg_name = "(?P<reg_name>(?>(?:[$unreserved$sub_delims]|$pct_encoded)*))";
+        $reg_name = "(?P<reg_name>(?>(?:[$unreserved$sub_delims]++|$pct_encoded)*))";
 
-        $IPvFuture = "(?P<IPvFuture>v[$HEXDIG]+\.[$unreserved$sub_delims:]+)";
+        $IPvFuture = "(?P<IPvFuture>v[$HEXDIG]++\.[$unreserved$sub_delims:]++)";
         $IP_literal = "(?P<IP_literal>\[(?>$IPv6address|$IPvFuture)\])";
 
-        $port = "(?P<port>(?>[$DIGIT]*))";
+        $port = "(?P<port>(?>[$DIGIT]*+))";
         $host = "(?P<host>$IP_literal|(?P<IPv4address>$IPv4address)|$reg_name)";
-        $userinfo = "(?P<userinfo>(?>(?:[$unreserved$sub_delims:]|$pct_encoded)*))";
+        $userinfo = "(?P<userinfo>(?>(?:[$unreserved$sub_delims:]++|$pct_encoded)*))";
         $authority = "(?P<authority>(?:$userinfo@)?$host(?::$port)?)";
 
         // path
         $segment = "(?>(?:$pchar)*)";
         $segment_nz = "(?>(?:$pchar)+)";
-        $segment_nz_nc = "(?>([$unreserved$sub_delims@]+|$pct_encoded)+)";
+        $segment_nz_nc = "(?>([$unreserved$sub_delims@]++|$pct_encoded)+)";
 
         $path_abempty = "(?P<path_abempty>(?:/$segment)*)";
         $path_absolute = "(?P<path_absolute>/(?:$segment_nz(?:/$segment)*)?)";
