@@ -25,7 +25,7 @@ class UrlInfo
     /**
      * Creates a new urlinfo object using the URL and the parts.
      * @param string $url The original url that has been parsed
-     * @param array $parts The parts the have been parsed from the url
+     * @param string[] $parts The parts the have been parsed from the url
      */
     public function __construct($url, array $parts)
     {
