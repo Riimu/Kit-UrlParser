@@ -1,0 +1,7 @@
+source: src
+destination: apidoc
+charset: UTF-8
+title: kit-classloader
+report: apidoc/report.xml
+wipeout: Yes
+progressbar: No

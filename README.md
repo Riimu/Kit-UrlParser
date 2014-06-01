@@ -11,7 +11,28 @@ the parsed URLs. While this library is intended for parsing URLs, it uses the
 generic URI syntax, which can be used to parse and validate any URIs. This
 library, however, is geared towards providing useful information from URLs.
 
-API documentation for the classes can be generated using apigen.
+API documentation is [available](http://kit.riimu.net/api/urlparser/) and it
+can be generated using ApiGen.
+
+[![Build Status](https://travis-ci.org/Riimu/Kit-UrlParser.svg?branch=master)](https://travis-ci.org/Riimu/Kit-UrlParser)
+[![Coverage Status](https://coveralls.io/repos/Riimu/Kit-UrlParser/badge.png?branch=master)](https://coveralls.io/r/Riimu/Kit-UrlParser?branch=master)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/Riimu/Kit-UrlParser/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/Riimu/Kit-UrlParser/?branch=master)
+
+## Installation ##
+
+This library can be easily installed using [Composer](http://getcomposer.org/)
+by including the following dependency in your `composer.json`:
+
+```json
+{
+    "require": {
+        "riimu/kit-urlparser": "1.*"
+    }
+}
+```
+
+The library will be the installed by running `composer install` and the classes
+can be loaded with simply including the `vendor/autoload.php` file.
 
 ## Usage ##
 
