@@ -113,15 +113,7 @@ class UrlInfo
      */
     public function getUsername()
     {
-        $user = $this->getPart('userinfo');
-
-        if ($user === false) {
-            return false;
-        } elseif (strpos($user, ':') !== false) {
-            return substr($user, 0, strpos($user, ':'));
-        } else {
-            return $user;
-        }
+        return $this->getUserInfo(0);
     }
 
     /**
@@ -135,13 +127,18 @@ class UrlInfo
      */
     public function getPassword()
     {
-        $user = $this->getPart('userinfo');
+        return $this->getUserInfo(1);
+    }
 
-        if ($user === false || strpos($user, ':') === false) {
-            return false;
-        } else {
-            return substr($user, strpos($user, ':') + 1);
-        }
+    /**
+     * Gets part of the userinfo field.
+     * @param integer $part Use 0 for username and 1 for password
+     * @return string|false The requested userinfo part or false if it's empty
+     */
+    private function getUserInfo($part)
+    {
+        $info = explode(':', (string) $this->getPart('userinfo'), 2) + [false, false];
+        return $info[$part ? 1 : 0] === '' ? false : $info[$part ? 1 : 0];
     }
 
     /**

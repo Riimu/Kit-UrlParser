@@ -60,6 +60,9 @@ class UrlParserTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('foo', $parser->parseUrl('http://foo:bar@www.example.com')->getUsername());
         $this->assertEquals('foo', $parser->parseUrl('http://foo@www.example.com')->getUsername());
         $this->assertEquals(false, $parser->parseUrl('http://www.example.com')->getUsername());
+        $this->assertEquals(false, $parser->parseUrl('http://@www.example.com')->getUsername());
+        $this->assertEquals(false, $parser->parseUrl('http://:@www.example.com')->getUsername());
+        $this->assertEquals(false, $parser->parseUrl('http://:bar@www.example.com')->getUsername());
     }
 
     public function testGetPassword()
@@ -68,6 +71,9 @@ class UrlParserTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('bar', $parser->parseUrl('http://foo:bar@www.example.com')->getPassword());
         $this->assertEquals(false, $parser->parseUrl('http://foo@www.example.com')->getPassword());
         $this->assertEquals(false, $parser->parseUrl('http://www.example.com')->getPassword());
+        $this->assertEquals(false, $parser->parseUrl('http://@www.example.com')->getPassword());
+        $this->assertEquals(false, $parser->parseUrl('http://:@www.example.com')->getPassword());
+        $this->assertEquals('bar', $parser->parseUrl('http://:bar@www.example.com')->getPassword());
     }
 
     public function testGetHostname()
