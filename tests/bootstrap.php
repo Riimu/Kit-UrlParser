@@ -1,4 +1,4 @@
 <?php
 
-require_once '../src/UrlParser.php';
-require_once '../src/UrlInfo.php';
+require_once __DIR__ . '/../src/UrlParser.php';
+require_once __DIR__ . '/../src/UrlInfo.php';

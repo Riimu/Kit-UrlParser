@@ -7,7 +7,7 @@ namespace Riimu\Kit\UrlParser;
  *
  * UrlParser provides a more accurate solution to parsing URLs compared to PHP's
  * built in parse_url(). The URLs are parsed only as defined in the spec. This
- * however, means that this class will not parse URLs that are imcomplete or
+ * however, means that this class will not parse URLs that are incomplete or
  * otherwise invalid according to the spec despite the fact that people commonly
  * use these urls.
  *
@@ -63,7 +63,7 @@ class UrlParser
     }
 
     /**
-     * Parses the URL accordingn to relative-ref spec and returns UrlInfo object.
+     * Parses the URL according to relative-ref spec and returns UrlInfo object.
      *
      * The relative-ref spec differs from URI spec in that relative-ref never
      * has the scheme part defined. Note that while 'www.example.com' can be
@@ -107,7 +107,10 @@ class UrlParser
         $scheme = "(?P<scheme>(?>[$ALPHA][$ALPHA$DIGIT+\-.]*+))";
 
         // authority
-        $IPv6address = str_replace(' ', '', "(?P<IPv6address>" .
+        $IPv6address = str_replace(
+            ' ',
+            '',
+            "(?P<IPv6address>" .
             "(?:                         (?:$h16:){6}$ls32)|" .
             "(?:                       ::(?:$h16:){5}$ls32)|" .
             "(?:(?:              $h16)?::(?:$h16:){4}$ls32)|" .
@@ -116,7 +119,8 @@ class UrlParser
             "(?:(?:(?:$h16:){0,3}$h16)?::   $h16:    $ls32)|" .
             "(?:(?:(?:$h16:){0,4}$h16)?::            $ls32)|" .
             "(?:(?:(?:$h16:){0,5}$h16)?::            $h16 )|" .
-            "(?:(?:(?:$h16:){0,6}$h16)?::                 ))");
+            "(?:(?:(?:$h16:){0,6}$h16)?::                 ))"
+        );
 
         $reg_name = "(?P<reg_name>(?>(?:[$unreserved$sub_delims]++|$pct_encoded)*))";
 
