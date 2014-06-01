@@ -88,9 +88,9 @@ class UrlParser
      */
     private function buildPatterns()
     {
-        $ALPHA = "A-Za-z";
-        $DIGIT = "0-9";
-        $HEXDIG = $DIGIT . "A-Fa-f";
+        $ALPHA = 'A-Za-z';
+        $DIGIT = '0-9';
+        $HEXDIG = $DIGIT . 'A-Fa-f';
         $unreserved = "$ALPHA$DIGIT\-._~";
         $sub_delims = "!$&'()*+,;=";
 
@@ -110,7 +110,7 @@ class UrlParser
         $IPv6address = str_replace(
             ' ',
             '',
-            "(?P<IPv6address>" .
+            '(?P<IPv6address>' .
             "(?:                         (?:$h16:){6}$ls32)|" .
             "(?:                       ::(?:$h16:){5}$ls32)|" .
             "(?:(?:              $h16)?::(?:$h16:){4}$ls32)|" .
@@ -141,7 +141,7 @@ class UrlParser
         $path_absolute = "(?P<path_absolute>/(?:$segment_nz(?:/$segment)*)?)";
         $path_noscheme = "(?P<path_noscheme>$segment_nz_nc(?:/$segment)*)";
         $path_rootless = "(?P<path_rootless>$segment_nz(?:/$segment)*)";
-        $path_empty = "(?P<path_empty>)";
+        $path_empty = '(?P<path_empty>)';
 
         // other
         $query = "(?P<query>(?>(?:$pchar|[/?])*))";
