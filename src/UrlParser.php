@@ -17,45 +17,40 @@ namespace Riimu\Kit\UrlParser;
  */
 class UrlParser
 {
-    /**
-     * PCRE pattern conforming the URI spec.
-     * @var string
-     */
+    /** @var string PCRE pattern conforming the URI specification */
     private $urlPattern;
 
-    /**
-     * PCRE pattern conforming the relative-ref spec.
-     * @var string
-     */
+    /** @var PCRE pattern conforming the relative-ref specification */
     private $relativePattern;
 
     /**
-     * Creates a new UrlParser and builds the parsing patterns.
+     * Creates a new UrlParser instance.
      */
     public function __construct()
     {
-        $patterns = $this->buildPatterns();
-        $this->urlPattern = $patterns['URI'];
-        $this->relativePattern = $patterns['relative-ref'];
+        list($uri, $relative) = $this->buildPatterns();
+
+        $this->urlPattern = sprintf('#^%s$#', $uri);
+        $this->relativePattern = sprintf('#^%s$#', $relative);
     }
 
     /**
-     * Parses the URL according to the URI spec and returns the UrlInfo object.
+     * Parses the URL according to the URI specification.
      *
      * This method will basically parse complete URLs. Essentially, the real
      * requirement is that the URL must have the scheme defined. In other words
      * 'www.example.com' will return null, but 'http://www.example.com' will
      * return an UrlInfo object.
      *
-     * Any string that cannot be parsed as an URL according to the spec will
-     * return a null value.
+     * Any string that cannot be parsed as an URL according to the specification
+     * will return a null value.
      *
      * @param string $url URL to parse
      * @return UrlInfo|null UrlInfo object from the URL or null on failure
      */
     public function parseUrl($url)
     {
-        if (preg_match("#^$this->urlPattern$#", $url, $match)) {
+        if (preg_match($this->urlPattern, $url, $match)) {
             return new UrlInfo($url, $match);
         } else {
             return null;
@@ -63,7 +58,7 @@ class UrlParser
     }
 
     /**
-     * Parses the URL according to relative-ref spec and returns UrlInfo object.
+     * Parses the URL according to relative-ref specification.
      *
      * The relative-ref spec differs from URI spec in that relative-ref never
      * has the scheme part defined. Note that while 'www.example.com' can be
@@ -76,7 +71,7 @@ class UrlParser
      */
     public function parseRelative($url)
     {
-        if (preg_match("#^$this->relativePattern$#", $url, $match)) {
+        if (preg_match($this->relativePattern, $url, $match)) {
             return new UrlInfo($url, $match);
         } else {
             return null;
@@ -107,20 +102,16 @@ class UrlParser
         $scheme = "(?P<scheme>(?>[$ALPHA][$ALPHA$DIGIT+\-.]*+))";
 
         // authority
-        $IPv6address = preg_replace(
-            '/\s+/',
-            '',
-            "(?P<IPv6address>
-            (?:                         (?:$h16:){6}$ls32)|
-            (?:                       ::(?:$h16:){5}$ls32)|
-            (?:(?:              $h16)?::(?:$h16:){4}$ls32)|
-            (?:(?:(?:$h16:){0,1}$h16)?::(?:$h16:){3}$ls32)|
-            (?:(?:(?:$h16:){0,2}$h16)?::(?:$h16:){2}$ls32)|
-            (?:(?:(?:$h16:){0,3}$h16)?::   $h16:    $ls32)|
-            (?:(?:(?:$h16:){0,4}$h16)?::            $ls32)|
-            (?:(?:(?:$h16:){0,5}$h16)?::            $h16 )|
-            (?:(?:(?:$h16:){0,6}$h16)?::                 ))"
-        );
+        $IPv6address = '(?P<IPv6address>' .
+                                     "(?:(?:$h16:){6}$ls32)|" .
+                                   "(?:::(?:$h16:){5}$ls32)|" .
+                          "(?:(?:$h16)?::(?:$h16:){4}$ls32)|" .
+            "(?:(?:(?:$h16:){0,1}$h16)?::(?:$h16:){3}$ls32)|" .
+            "(?:(?:(?:$h16:){0,2}$h16)?::(?:$h16:){2}$ls32)|" .
+            "(?:(?:(?:$h16:){0,3}$h16)?::$h16:$ls32)|" .
+            "(?:(?:(?:$h16:){0,4}$h16)?::$ls32)|" .
+            "(?:(?:(?:$h16:){0,5}$h16)?::$h16)|" .
+            "(?:(?:(?:$h16:){0,6}$h16)?::))";
 
         $reg_name = "(?P<reg_name>(?>(?:[$unreserved$sub_delims]++|$pct_encoded)*))";
 
@@ -153,9 +144,6 @@ class UrlParser
         $URI = "$scheme:$hier_part(?:\?$query)?(?:\#$fragment)?";
         $relative_ref = "$relative_part(?:\?$query)?(?:\#$fragment)?";
 
-        return [
-            'URI' => $URI,
-            'relative-ref' => $relative_ref,
-        ];
+        return [$URI, $relative_ref];
     }
 }
