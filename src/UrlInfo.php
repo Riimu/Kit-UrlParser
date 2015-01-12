@@ -177,7 +177,7 @@ class UrlInfo
      * @param boolean $resolve Whether to determine IP address for hostnames or not
      * @return string|false IP address for the URL or false if not defined
      */
-    public function getIPAddress($resolve = true)
+    public function getIpAddress($resolve = true)
     {
         if (isset($this->parts['IPvFuture'])) {
             return substr($this->parts['IPvFuture'], strpos($this->parts['IPvFuture'], '.') + 1);
@@ -296,6 +296,7 @@ class UrlInfo
      */
     public function getVariables()
     {
+        $variables = [];
         parse_str($this->getQuery(), $variables);
         return $variables;
     }
