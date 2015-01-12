@@ -132,8 +132,7 @@ class UrlInfo
      */
     public function getUsername()
     {
-        return $pos = strpos($info = $this->getPart('userinfo'), ':')
-            ? $info : substr($info, 0, $pos);
+        return $this->getAuth(true);
     }
 
     /**
@@ -147,8 +146,24 @@ class UrlInfo
      */
     public function getPassword()
     {
-        return $pos = strpos($info = $this->getPart('userinfo'), ':')
-            ? false : substr($info, $pos + 1);
+        return $this->getAuth(false);
+    }
+
+    /**
+     * Returns username or password from the userinfo part.
+     * @param boolean $username True to return username, false to return password
+     * @return string|false Requested part or false if not defined
+     */
+    private function getAuth($username)
+    {
+        $info = $this->getPart('userinfo');
+        $pos = strpos($info, ':');
+
+        if ($pos === false) {
+            return $username ? $info : false;
+        }
+
+        return $username ? substr($info, 0, $pos) : substr($info, $pos + 1);
     }
 
     /**
