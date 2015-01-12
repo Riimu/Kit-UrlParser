@@ -98,7 +98,7 @@ class UrlInfo
     /**
      * Returns the first defined part from the list of parts
      * @param string[] $list List of part names
-     * @return srting|false Value for the first defined part of false if none found
+     * @return string|false Value for the first defined part of false if none found
      */
     private function findPart(array $list)
     {
@@ -132,10 +132,8 @@ class UrlInfo
      */
     public function getUsername()
     {
-        $info = $this->getPart('userinfo');
-        $pos = strpos($info, ':');
-
-        return $pos === false ? $info : substr($info, 0, $pos);
+        return $pos = strpos($info = $this->getPart('userinfo'), ':')
+            ? $info : substr($info, 0, $pos);
     }
 
     /**
@@ -149,10 +147,8 @@ class UrlInfo
      */
     public function getPassword()
     {
-        $info = $this->getPart('userinfo');
-        $pos = strpos($info, ':');
-
-        return $pos === false ? false : substr($info, $pos + 1);
+        return $pos = strpos($info = $this->getPart('userinfo'), ':')
+            ? false : substr($info, $pos + 1);
     }
 
     /**
@@ -180,11 +176,21 @@ class UrlInfo
         if (isset($this->parts['IPvFuture'])) {
             return substr($this->parts['IPvFuture'], strpos($this->parts['IPvFuture'], '.') + 1);
         } elseif (isset($this->parts['reg_name']) && $resolve) {
-            $address = gethostbyname($this->parts['reg_name']);
-            return $address === $this->parts['reg_name'] ? false : $address;
+            return $this->resolveHost($this->parts['reg_name']);
         }
 
         return $this->findPart(['IPv4address', 'IPv6address']);
+    }
+
+    /**
+     * Resolves the IP address for the hostname.
+     * @param string $hostname Hostname to resolve
+     * @return string|false IP address for the host or false if not found
+     */
+    private function resolveHost($hostname)
+    {
+        $address = gethostbyname($hostname);
+        return $address === $hostname ? false : $address;
     }
 
     /**
