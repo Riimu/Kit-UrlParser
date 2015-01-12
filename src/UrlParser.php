@@ -20,7 +20,7 @@ class UrlParser
     /** @var string PCRE pattern conforming the URI specification */
     private $urlPattern;
 
-    /** @var PCRE pattern conforming the relative-ref specification */
+    /** @var string PCRE pattern conforming the relative-ref specification */
     private $relativePattern;
 
     /**
@@ -80,6 +80,7 @@ class UrlParser
 
     /**
      * Builds the PCRE patterns according to the RFC.
+     * @return string[] Patterns build for URL matching
      */
     private function buildPatterns()
     {
