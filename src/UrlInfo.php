@@ -10,10 +10,10 @@ namespace Riimu\Kit\UrlParser;
  */
 class UrlInfo
 {
-    /** @var string The original parsed url */
+    /** @var string The original parsed URL */
     private $url;
 
-    /** @var string[] All the nonempty parts parsed from the url */
+    /** @var string[] All the nonempty parts parsed from the URL */
     private $parts;
 
     /** @var integer[] List of known default ports */
@@ -25,8 +25,8 @@ class UrlInfo
 
     /**
      * Creates a new UrlInfo instance.
-     * @param string $url The original url that has been parsed
-     * @param string[] $parts The parts the have been parsed from the url
+     * @param string $url The original parsed URL
+     * @param string[] $parts The parts the have been parsed from the URL
      */
     public function __construct($url, array $parts)
     {
@@ -40,7 +40,7 @@ class UrlInfo
 
     /**
      * Returns the original URL.
-     * @return string The original URL that has been parsed.
+     * @return string The original parsed URL
      */
     public function getUrl()
     {
@@ -51,7 +51,7 @@ class UrlInfo
      * Returns the nonempty named parts from the parsed URL.
      *
      * The array contains all the nonempty parts that have been parsed from the
-     * url. The URL may consist of following parts:
+     * URL. The URL may consist of following parts:
      *
      * - scheme        : Scheme defined in the URL (the part before '://')
      * - hier_part     : Part that may consist of authority and path
@@ -70,8 +70,8 @@ class UrlInfo
      * - path_noscheme : Path that begins with non empty segment without :
      * - path_rootless : Path that begins with non empty segment
      * - path_empty    : This part is always empty, so it should never be returned
-     * - query         : Query part of the url (the part after '?')
-     * - fragment      : Fragment part of the url (the part after '#')
+     * - query         : Query part of the URL (the part after '?')
+     * - fragment      : Fragment part of the URL (the part after '#')
      *
      * @return string[] Named nonempty parts from the parsed URL
      */
@@ -103,8 +103,8 @@ class UrlInfo
     }
 
     /**
-     * Returns the scheme part of the url.
-     * @return string|false Scheme part of the url or false if not defined
+     * Returns the scheme part of the URL.
+     * @return string|false Scheme part of the URL or false if not defined
      */
     public function getScheme()
     {
@@ -112,7 +112,7 @@ class UrlInfo
     }
 
     /**
-     * Returns the username from the userinfo part of the url.
+     * Returns the username from the userinfo part of the URL.
      *
      * Username is defined in the userinfo part, which is separated from the
      * host with '@'. If the userinfo part contains a colon, the username is
@@ -127,7 +127,7 @@ class UrlInfo
     }
 
     /**
-     * Returns the password from the userinfo part of the url.
+     * Returns the password from the userinfo part of the URL.
      *
      * Password is defined in the userinfo part, which is separated from the
      * host with '@'. Password is the part of userinfo that comes after the
@@ -158,8 +158,8 @@ class UrlInfo
     }
 
     /**
-     * Returns the host part of the url.
-     * @return string|false Host part from the url or false if not defined
+     * Returns the host part of the URL.
+     * @return string|false Host part from the URL or false if not defined
      */
     public function getHostname()
     {
@@ -172,7 +172,7 @@ class UrlInfo
      * If the IP address is defined in the URL itself, that IP address is
      * returned (without any enclosing characters or version information). If
      * the URL has a hostname instead, the IP address will be determined by
-     * gethostbyname() (unless the optional parameter is set to false).
+     * `gethostbyname()` (unless the optional parameter is set to false).
      *
      * @param boolean $resolve Whether to determine IP address for hostnames or not
      * @return string|false IP address for the URL or false if not defined
@@ -202,7 +202,7 @@ class UrlInfo
     /**
      * Returns the port from the URL or default one for the scheme.
      *
-     * If no port is present in the url and the first parameter is not set to
+     * If no port is present in the URL and the first parameter is not set to
      * false, this method will return the default port of the scheme for known
      * schemes.
      *
@@ -244,8 +244,8 @@ class UrlInfo
     }
 
     /**
-     * Returns the path part of the url.
-     * @return string Path part of the url or empty string if none defined
+     * Returns the path part of the URL.
+     * @return string Path part of the URL or empty string if none defined
      */
     public function getPath()
     {
@@ -276,8 +276,8 @@ class UrlInfo
     }
 
     /**
-     * Returns the query part of the url.
-     * @return string|false Query part of the url or false if not defined
+     * Returns the query part of the URL.
+     * @return string|false Query part of the URL or false if not defined
      */
     public function getQuery()
     {
@@ -288,8 +288,8 @@ class UrlInfo
      * Returns an array containing variables parsed from the query.
      *
      * The variables are parsed from the string returned by getQuery() using
-     * PHP's built in parse_str() function. Thus, the parsing is identical to
-     * parsing of $_GET variables. If the Query is empty, and empty array will
+     * PHP's built in `parse_str()` function. Thus, the parsing is identical to
+     * parsing of $_GET variables. If the query is empty, and empty array will
      * be returned.
      *
      * @return array Variables parsed from the query or empty array if none
@@ -302,8 +302,8 @@ class UrlInfo
     }
 
     /**
-     * Returns the fragment part of the url.
-     * @return string|false Fragment part of the url or false if not defined
+     * Returns the fragment part of the URL.
+     * @return string|false Fragment part of the URL or false if not defined
      */
     public function getFragment()
     {

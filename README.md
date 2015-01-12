@@ -7,7 +7,7 @@ other words, this library simplifies getting the different components from URLs.
 
 PHP already provides a built in function `parse_url()`. However, that function
 behaves somewhat differently from the RFC definition, since it is more lenient
-towards urls that do not exactly fit the specification. This library provides
+towards URLs that do not exactly fit the specification. This library provides
 a more accurate implementation for parsing and even for validating URLs.
 
 While this library is called *URL* parser, it does, in fact, conform to the

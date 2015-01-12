@@ -1,10 +1,10 @@
 source:
 	- src
-
+	
 destination: api
 charset:
 	- UTF-8
-
+	
 main: Riimu\Kit\UrlParser
 title: UrlParser
 php: false

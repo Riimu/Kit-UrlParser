@@ -5,22 +5,24 @@ namespace Riimu\Kit\UrlParser;
 /**
  * Provides a RFC 3986 compliant solution to URL parsing.
  *
- * UrlParser provides a more accurate solution to parsing URLs compared to PHP's
- * built in parse_url(). The URLs are parsed only as defined in the spec. This
- * however, means that this class will not parse URLs that are incomplete or
- * otherwise invalid according to the spec despite the fact that people commonly
- * use these urls.
+ * UrlParser provides URL parsing methods that accurately comply with the
+ * specification. Unlike the built in function `parse_url()`, this library will
+ * not parse incomplete or invalid URLs in attempt to at least provide some
+ * information. While this library should parse all valid URLs, it does not
+ * mean that other applications always produce URLs that are valid according to
+ * the specification.
  *
+ * @see http://www.ietf.org/rfc/rfc3986.txt
  * @author Riikka Kalliomäki <riikka.kalliomaki@gmail.com>
  * @copyright Copyright (c) 2013, Riikka Kalliomäki
  * @license http://opensource.org/licenses/mit-license.php MIT License
  */
 class UrlParser
 {
-    /** @var string PCRE pattern conforming the URI specification */
+    /** @var string PCRE pattern conforming to the URI specification */
     private $urlPattern;
 
-    /** @var string PCRE pattern conforming the relative-ref specification */
+    /** @var string PCRE pattern conforming to the relative-ref specification */
     private $relativePattern;
 
     /**
@@ -37,16 +39,13 @@ class UrlParser
     /**
      * Parses the URL according to the URI specification.
      *
-     * This method will basically parse complete URLs. Essentially, the real
-     * requirement is that the URL must have the scheme defined. In other words
-     * 'www.example.com' will return null, but 'http://www.example.com' will
-     * return an UrlInfo object.
-     *
-     * Any string that cannot be parsed as an URL according to the specification
-     * will return a null value.
+     * URLs parsed according to the URI specification must have scheme. Any URL
+     * that does not define the scheme is considered invalid. For example,
+     * 'www.example.com' is not a valid URL, because it does not start with
+     * 'http://'.
      *
      * @param string $url URL to parse
-     * @return UrlInfo|null UrlInfo object from the URL or null on failure
+     * @return UrlInfo|null URL information object or null if the URL is invalid
      */
     public function parseUrl($url)
     {
@@ -60,14 +59,14 @@ class UrlParser
     /**
      * Parses the URL according to relative-ref specification.
      *
-     * The relative-ref spec differs from URI spec in that relative-ref never
-     * has the scheme part defined. Note that while 'www.example.com' can be
-     * parsed as relative url, it's actually part of the path and not the
-     * hostname. It will only be recognized as hostname if prefixed with two
-     * forward slashes, e.g. '//www.example.com'.
+     * Relative URLs cannot define a scheme. For example, '//www.example.com' is
+     * a valid relative url, because it's relative to the scheme. It is good to
+     * note that while 'www.example.com' is a valid relative URL, it is parsed
+     * as the path and not the hostname. Relative URL must start with '//' in
+     * order to define a hostname.
      *
-     * @param string $url Relative URL to parse
-     * @return UrlInfo|null UrlInfo object from the URL or null on failure
+     * @param string $url URL to parse
+     * @return UrlInfo|null URL information object or null if the URL is invalid
      */
     public function parseRelative($url)
     {
