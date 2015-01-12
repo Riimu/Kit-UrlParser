@@ -31,14 +31,10 @@ class UrlInfo
     public function __construct($url, array $parts)
     {
         $this->url = $url;
-        $this->parts = [];
+        $this->parts = array_filter($parts, 'strlen');
 
-        foreach ($parts as $name => $part) {
-            if (is_int($name) || $part === '') {
-                continue;
-            }
-
-            $this->parts[$name] = $part;
+        foreach (array_filter(array_keys($this->parts), 'is_int') as $key) {
+            unset($this->parts[$key]);
         }
     }
 
@@ -102,13 +98,8 @@ class UrlInfo
      */
     private function findPart(array $list)
     {
-        foreach ($list as $key) {
-            if (isset($this->parts[$key])) {
-                return $this->parts[$key];
-            }
-        }
-
-        return false;
+        $result = array_intersect_key($this->parts, array_flip($list));
+        return reset($result);
     }
 
     /**
@@ -222,11 +213,11 @@ class UrlInfo
     {
         $port = $this->getPart('port');
 
-        if ($port === false && $useDefault) {
-            return $this->getDefaultPort();
+        if ($port === false) {
+            return $useDefault ? $this->getDefaultPort() : false;
         }
 
-        return $port === false ? false : (int) $port;
+        return (int) $port;
     }
 
     /**
