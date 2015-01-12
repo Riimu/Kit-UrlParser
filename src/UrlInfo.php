@@ -10,20 +10,21 @@ namespace Riimu\Kit\UrlParser;
  */
 class UrlInfo
 {
-    /**
-     * The original url that has been parsed.
-     * @var string
-     */
+    /** @var string The original parsed url */
     private $url;
 
-    /**
-     * The different parts that have been parsed from the url.
-     * @var array
-     */
+    /** @var string[] All the nonempty parts parsed from the url */
     private $parts;
 
+    /** @var integer[] List of known default ports */
+    private static $defaultPorts = [
+        'ftp' => 21,
+        'http' => 80,
+        'https' => 443,
+    ];
+
     /**
-     * Creates a new urlinfo object using the URL and the parts.
+     * Creates a new UrlInfo instance.
      * @param string $url The original url that has been parsed
      * @param string[] $parts The parts the have been parsed from the url
      */
@@ -51,31 +52,32 @@ class UrlInfo
     }
 
     /**
-     * Returns the different named parts from the URL that have been parsed.
+     * Returns the nonempty named parts from the parsed URL.
      *
-     * The array contains any nonempty parts from the url. It may contain any of
-     * the following keys:
-     * - scheme        : Scheme inside the url
-     * - hier_part     : Part with possible authority and path
-     * - relative_part : Part with possible authority and path on relative url
-     * - authority     : Part with userinfo, host and port
-     * - userinfo      : Part prior to @ containing username and possibly password
-     * - host          : Host part of the url
+     * The array contains all the nonempty parts that have been parsed from the
+     * url. The URL may consist of following parts:
+     *
+     * - scheme        : Scheme defined in the URL (the part before '://')
+     * - hier_part     : Part that may consist of authority and path
+     * - relative_part : Part of relative URL that may consist of authority and path
+     * - authority     : Part that may consist of userinfo, host and port
+     * - userinfo      : Part prior to '@' that usually contains username and password
+     * - host          : Part that contains either the IP address or hostname
      * - IP_literal    : Either IPv6address or IPvFuture
      * - IPv6address   : Possible IPv6address if used
      * - IPvFuture     : Possible IPvFuture address if used
      * - IPv4address   : Possible IPv4address if used
      * - reg_name      : Hostname when not using IP address
-     * - port          : Port in the url
+     * - port          : Port defined in the URL
      * - path_abempty  : Path when authority is present
      * - path_absolute : Path that begins with /
      * - path_noscheme : Path that begins with non empty segment without :
      * - path_rootless : Path that begins with non empty segment
-     * - path_empty    : Path that is empty
-     * - query         : Query part of the url
-     * - fragment      : Fragment part of the url
+     * - path_empty    : This part is always empty, so it should never be returned
+     * - query         : Query part of the url (the part after '?')
+     * - fragment      : Fragment part of the url (the part after '#')
      *
-     * @return array Named parts from the parsed URL
+     * @return string[] Named nonempty parts from the parsed URL
      */
     public function getParts()
     {
@@ -83,7 +85,7 @@ class UrlInfo
     }
 
     /**
-     * Returns one of the parts in the url or false if not defined.
+     * Returns one of the parts in the URL or false if not defined.
      * @see UrlInfo::getParts()
      * @param string $part Name of the part
      * @return string|false Value of that part or false if not defined
@@ -91,6 +93,22 @@ class UrlInfo
     public function getPart($part)
     {
         return isset($this->parts[$part]) ? $this->parts[$part] : false;
+    }
+
+    /**
+     * Returns the first defined part from the list of parts
+     * @param string[] $list List of part names
+     * @return srting|false Value for the first defined part of false if none found
+     */
+    private function findPart(array $list)
+    {
+        foreach ($list as $key) {
+            if (isset($this->parts[$key])) {
+                return $this->parts[$key];
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -105,40 +123,36 @@ class UrlInfo
     /**
      * Returns the username from the userinfo part of the url.
      *
-     * The username in the url is the part prior to @ and possibly delimited by
-     * a colon, which starts the password. If no colon is present, then the
-     * entire part prior to @ is the username.
+     * Username is defined in the userinfo part, which is separated from the
+     * host with '@'. If the userinfo part contains a colon, the username is
+     * considered anything that comes before the colon. If there is no colon,
+     * the entire part prior to '@' is considered the username.
      *
-     * @return string|false Username from the url of false if not defined.
+     * @return string|false Username from the URL of false if not defined.
      */
     public function getUsername()
     {
-        return $this->getUserInfo(0);
+        $info = $this->getPart('userinfo');
+        $pos = strpos($info, ':');
+
+        return $pos === false ? $info : substr($info, 0, $pos);
     }
 
     /**
      * Returns the password from the userinfo part of the url.
      *
-     * The password is defined to begin in the url before @, but after the
-     * colon. If the userinfo part does not have a colon, then false is
-     * returned instead.
+     * Password is defined in the userinfo part, which is separated from the
+     * host with '@'. Password is the part of userinfo that comes after the
+     * colon. If no colon is present, then false is returned instead.
      *
-     * @return string|false Password or false if not defined
+     * @return string|false Password from the URL of false if not defined.
      */
     public function getPassword()
     {
-        return $this->getUserInfo(1);
-    }
+        $info = $this->getPart('userinfo');
+        $pos = strpos($info, ':');
 
-    /**
-     * Gets part of the userinfo field.
-     * @param integer $part Use 0 for username and 1 for password
-     * @return string|false The requested userinfo part or false if it's empty
-     */
-    private function getUserInfo($part)
-    {
-        $info = explode(':', (string) $this->getPart('userinfo'), 2) + [false, false];
-        return $info[$part ? 1 : 0] === '' ? false : $info[$part ? 1 : 0];
+        return $pos === false ? false : substr($info, $pos + 1);
     }
 
     /**
@@ -151,90 +165,102 @@ class UrlInfo
     }
 
     /**
-     * Returns the IP address of the hostname.
+     * Returns the IP address for the URL.
      *
-     * The return value depends on the hostname used in the url. If IPv4 address
-     * is present in the url, then that is returned as is. When IPv6 address is
-     * used, the address is returned without the enclosing [ and ]. Should
-     * IPvFuture address be used, the part following version string and before
-     * the closing ] is returned.
+     * If the IP address is defined in the URL itself, that IP address is
+     * returned (without any enclosing characters or version information). If
+     * the URL has a hostname instead, the IP address will be determined by
+     * gethostbyname() (unless the optional parameter is set to false).
      *
-     * When hostname is present in the url, the returned value depends on the
-     * parameter passed to the method. If true, then a DNS lookup is made to
-     * retrieve the IP address. If that fails, or false is passed, then this
-     * method will simply return false if hostname is present.
-     *
-     * @param boolean $nslookup Whether to use DNS to determine the IP or not
-     * @return string|false IP address of the host or false on failure
+     * @param boolean $resolve Whether to determine IP address for hostnames or not
+     * @return string|false IP address for the URL or false if not defined
      */
-    public function getIPAddress($nslookup = true)
+    public function getIPAddress($resolve = true)
     {
-        if (isset($this->parts['IPv4address'])) {
-            return $this->parts['IPv4address'];
-        } elseif (isset($this->parts['IPv6address'])) {
-            return $this->parts['IPv6address'];
-        } elseif (isset($this->parts['reg_name'])) {
-            if ($nslookup) {
-                $ip = gethostbyname($this->parts['reg_name']);
-                return $ip === $this->parts['reg_name'] ? false : $ip;
-            }
-        } elseif (isset($this->parts['IPvFuture'])) {
+        if (isset($this->parts['IPvFuture'])) {
             return substr($this->parts['IPvFuture'], strpos($this->parts['IPvFuture'], '.') + 1);
+        } elseif (isset($this->parts['reg_name']) && $resolve) {
+            $address = gethostbyname($this->parts['reg_name']);
+            return $address === $this->parts['reg_name'] ? false : $address;
         }
 
-        return false;
+        return $this->findPart(['IPv4address', 'IPv6address']);
     }
 
     /**
-     * Returns the port from the url or default for the scheme.
+     * Returns the port from the URL or default one for the scheme.
      *
-     * If no port is present in the url and the first parameter is true, this
-     * method will return the default port of the scheme if known. Following
-     * port numbers will be returned for different schemes:
-     * - http  : 80
-     * - https : 443
-     * - ftp   : 21
+     * If no port is present in the url and the first parameter is not set to
+     * false, this method will return the default port of the scheme for known
+     * schemes.
      *
-     * @param boolean $useDefault True to return scheme's default port if missing
-     * @return int|false Port number or false if not defined
+     * @param boolean $useDefault Whether to return default port for the scheme or not
+     * @return integer|false Port number or false if not defined
      */
     public function getPort($useDefault = true)
     {
         $port = $this->getPart('port');
 
         if ($port === false && $useDefault) {
-            switch ($this->getPart('scheme')) {
-                case 'ftp':
-                    return 21;
-                case 'http':
-                    return 80;
-                case 'https':
-                    return 443;
-                default:
-                    return false;
-            }
+            return $this->getDefaultPort();
         }
 
         return $port === false ? false : (int) $port;
     }
 
     /**
+     * Returns the default port for the scheme for known schemes.
+     *
+     * If the scheme is one of the following, the appropriate port number will
+     * be returned:
+     *
+     * - http  : 80
+     * - https : 443
+     * - ftp   : 21
+     *
+     * @return integer|false Default port for the scheme or false if not known
+     */
+    public function getDefaultPort()
+    {
+        $scheme = $this->getScheme();
+
+        if ($scheme === false || !isset(self::$defaultPorts[$scheme])) {
+            return false;
+        }
+
+        return self::$defaultPorts[$scheme];
+    }
+
+    /**
      * Returns the path part of the url.
-     * @return string Path part of the url or empty string if none
+     * @return string Path part of the url or empty string if none defined
      */
     public function getPath()
     {
-        if (isset($this->parts['path_abempty'])) {
-            return $this->parts['path_abempty'];
-        } elseif (isset($this->parts['path_absolute'])) {
-            return $this->parts['path_absolute'];
-        } elseif (isset($this->parts['path_noscheme'])) {
-            return $this->parts['path_noscheme'];
-        } elseif (isset($this->parts['path_rootless'])) {
-            return $this->parts['path_rootless'];
-        }
+        $path = $this->findPart([
+            'path_abempty',
+            'path_absolute',
+            'path_noscheme',
+            'path_rootless',
+            'path_empty'
+        ]);
 
-        return '';
+        return $path === false ? '' : $path;
+    }
+
+    /**
+     * Returns the file extension from the path of false if none.
+     *
+     * File extension is defined as the part of the path after the last period
+     * (unless the period is followed by '/'). If no extension is present in the
+     * path, then false is returned instead.
+     *
+     * @return string|false File extension from the path or false if none
+     */
+    public function getFileExtension()
+    {
+        preg_match('/\.([^.\/]+)$/', $this->getPath(), $match);
+        return empty($match[1]) ? false : $match[1];
     }
 
     /**
@@ -247,7 +273,7 @@ class UrlInfo
     }
 
     /**
-     * Returns an array containing variables parsed from the Query.
+     * Returns an array containing variables parsed from the query.
      *
      * The variables are parsed from the string returned by getQuery() using
      * PHP's built in parse_str() function. Thus, the parsing is identical to
@@ -258,15 +284,7 @@ class UrlInfo
      */
     public function getVariables()
     {
-        $query = $this->getQuery();
-
-        if ($query === false) {
-            return [];
-        }
-
-        $variables = [];
-        parse_str($query, $variables);
-
+        parse_str($this->getQuery(), $variables);
         return $variables;
     }
 

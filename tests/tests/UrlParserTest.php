@@ -101,7 +101,9 @@ class UrlParserTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(443, $parser->parseUrl('https://www.example.com')->getPort(true));
         $this->assertEquals(21, $parser->parseUrl('ftp://www.example.com')->getPort(true));
         $this->assertEquals(8080, $parser->parseUrl('ftp://www.example.com:8080')->getPort());
+        $this->assertEquals(21, $parser->parseUrl('ftp://www.example.com:8080')->getDefaultPort());
         $this->assertEquals(false, $parser->parseUrl('scp://www.example.com')->getPort(true));
+        $this->assertEquals(false, $parser->parseUrl('scp://www.example.com:21')->getDefaultPort());
     }
 
     public function testGetPath()
@@ -112,6 +114,15 @@ class UrlParserTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('/path/to/file', $parser->parseUrl('http:/path/to/file')->getPath());
         $this->assertEquals('path/to/file', $parser->parseUrl('http:path/to/file')->getPath());
         $this->assertEquals('path/to/file', $parser->parseRelative('path/to/file')->getPath());
+    }
+
+    public function testGetExtension()
+    {
+        $parser = new UrlParser();
+        $this->assertSame(false, $parser->parseUrl('http://www.example.com/NoExtension')->getFileExtension());
+        $this->assertSame('txt', $parser->parseUrl('http://www.example.com/file.txt')->getFileExtension());
+        $this->assertSame(false, $parser->parseUrl('http://www.example.com/dir.name/NoExtension')->getFileExtension());
+        $this->assertSame('extension', $parser->parseUrl('http://www.example.com/dir.name/file.extension')->getFileExtension());
     }
 
     public function testGetQuery()
