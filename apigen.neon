@@ -5,7 +5,7 @@ destination: api
 charset:
 	- UTF-8
 
-main: Riimu\Kit\CSRF
-title: CSRF
+main: Riimu\Kit\UrlParser
+title: UrlParser
 php: false
 tree: true
