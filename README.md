@@ -1,6 +1,6 @@
 # RFC 3986 URL Parser #
 
-UrlParser is PHP library that provides a [RFC 3986](http://www.ietf.org/rfc/rfc3986.txt)
+*UrlParser* is PHP library that provides a [RFC 3986](http://www.ietf.org/rfc/rfc3986.txt)
 compliant URL parser. The purpose of this library is to parse information from
 URLs according to the ABNF definition described in the RFC documentation. In
 other words, this library simplifies getting the different components from URLs.
