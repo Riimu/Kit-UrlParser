@@ -11,7 +11,7 @@ class PatternBehaviorTest extends \PHPUnit_Framework_TestCase
 {
     public function testBacktrackLimits()
     {
-        $parser = new UrlParser();
+        $parser = new UriParser();
         $this->assertInstanceOf(
             'Riimu\Kit\UrlParser\UrlInfo',
             $parser->parseUrl('http://www.example.com:80/path/part?query=part#fragmentPart')
@@ -32,7 +32,7 @@ class PatternBehaviorTest extends \PHPUnit_Framework_TestCase
 
     public function testSpecDifferences()
     {
-        $parser = new UrlParser();
+        $parser = new UriParser();
 
         $this->assertEquals('www.example.com', $parser->parseUrl('http://www.example.com')->getHostname());
 
@@ -50,14 +50,14 @@ class PatternBehaviorTest extends \PHPUnit_Framework_TestCase
 
     public function testIP4AddressDots()
     {
-        $parser = new UrlParser();
+        $parser = new UriParser();
         $this->assertEquals(false, $parser->parseUrl('http://192-168-0-1')->getIPAddress(false));
         $this->assertEquals('192.168.0.1', $parser->parseUrl('http://192.168.0.1')->getIPAddress(false));
     }
 
     public function testMinimalURIs()
     {
-        $parser = new UrlParser();
+        $parser = new UriParser();
         $this->assertEquals('a', $parser->parseUrl('a:')->getScheme());
         $this->assertSame('', $parser->parseRelative('')->getPath());
     }

@@ -1,23 +1,29 @@
 {
-    "name": "riimu/kit-urlparser",
-    "type": "library",
-    "description": "RFC 3986 compliant url parsing library",
-    "homepage": "http://kit.riimu.net",
-    "keywords": ["rfc", "3986", "url", "parser"],
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Riikka Kalliomäki",
-            "email": "riikka.kalliomaki@gmail.com",
-            "homepage": "http://riimu.net"
-        }
-    ],
-    "require": {
-        "php": ">=5.4.0"
-    },
-    "autoload": {
-        "psr-4": {
-            "Riimu\\Kit\\UrlParser\\": "src/"
-        }
+  "name": "riimu/kit-urlparser",
+  "type": "library",
+  "description": "RFC 3986 compliant url parsing library",
+  "homepage": "http://kit.riimu.net",
+  "keywords": [
+    "rfc",
+    "3986",
+    "url",
+    "parser"
+  ],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Riikka Kalliomäki",
+      "email": "riikka.kalliomaki@gmail.com",
+      "homepage": "http://riimu.net"
     }
+  ],
+  "require": {
+    "php": ">=5.4.0",
+    "psr/http-message": "1.*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Riimu\\Kit\\UrlParser\\": "src/"
+    }
+  }
 }

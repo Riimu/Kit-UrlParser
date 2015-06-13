@@ -11,7 +11,7 @@ class UrlParserTest extends \PHPUnit_Framework_TestCase
 {
     public function testParseUrl()
     {
-        $parser = new UrlParser();
+        $parser = new UriParser();
         $this->assertInstanceOf('Riimu\Kit\UrlParser\UrlInfo', $parser->parseUrl('http://www.example.com'));
         $this->assertEquals(null, $parser->parseUrl('notabsolute'));
         $this->assertInstanceOf('Riimu\Kit\UrlParser\UrlInfo', $parser->parseRelative('notabsolute'));
@@ -20,14 +20,14 @@ class UrlParserTest extends \PHPUnit_Framework_TestCase
 
     public function testGetUrl()
     {
-        $parser = new UrlParser();
+        $parser = new UriParser();
         $url = 'http://www.example.com';
         $this->assertEquals($url, $parser->parseUrl($url)->getUrl());
     }
 
     public function testGetParts()
     {
-        $parser = new UrlParser();
+        $parser = new UriParser();
         $this->assertEquals([
             'scheme' => 'http',
             'hier_part' => '//www.example.com',
@@ -39,7 +39,7 @@ class UrlParserTest extends \PHPUnit_Framework_TestCase
 
     public function testGetPart()
     {
-        $parser = new UrlParser();
+        $parser = new UriParser();
         $info = $parser->parseUrl('http://www.example.com:80');
         $this->assertEquals(80, $info->getPart('port'));
         $this->assertEquals(false, $info->getPart('userinfo'));
@@ -47,7 +47,7 @@ class UrlParserTest extends \PHPUnit_Framework_TestCase
 
     public function testGetScheme()
     {
-        $parser = new UrlParser();
+        $parser = new UriParser();
         $infoA = $parser->parseUrl('https://www.example.com');
         $this->assertEquals('https', $infoA->getScheme());
         $infoB = $parser->parseRelative('/foo/bar');
@@ -56,7 +56,7 @@ class UrlParserTest extends \PHPUnit_Framework_TestCase
 
     public function testGetUsername()
     {
-        $parser = new UrlParser();
+        $parser = new UriParser();
         $this->assertEquals('foo', $parser->parseUrl('http://foo:bar@www.example.com')->getUsername());
         $this->assertEquals('foo', $parser->parseUrl('http://foo@www.example.com')->getUsername());
         $this->assertEquals(false, $parser->parseUrl('http://www.example.com')->getUsername());
@@ -67,7 +67,7 @@ class UrlParserTest extends \PHPUnit_Framework_TestCase
 
     public function testGetPassword()
     {
-        $parser = new UrlParser();
+        $parser = new UriParser();
         $this->assertEquals('bar', $parser->parseUrl('http://foo:bar@www.example.com')->getPassword());
         $this->assertEquals(false, $parser->parseUrl('http://foo@www.example.com')->getPassword());
         $this->assertEquals(false, $parser->parseUrl('http://www.example.com')->getPassword());
@@ -78,14 +78,14 @@ class UrlParserTest extends \PHPUnit_Framework_TestCase
 
     public function testGetHostname()
     {
-        $parser = new UrlParser();
+        $parser = new UriParser();
         $this->assertEquals('www.example.com', $parser->parseUrl('http://www.example.com')->getHostname());
         $this->assertEquals('127.0.0.1', $parser->parseUrl('http://127.0.0.1')->getHostname());
     }
 
     public function testGetIPAddress()
     {
-        $parser = new UrlParser();
+        $parser = new UriParser();
         $this->assertEquals('127.0.0.1', $parser->parseUrl('http://127.0.0.1')->getIPAddress());
         $this->assertEquals('2001:db8::7', $parser->parseUrl('http://[2001:db8::7]')->getIPAddress());
         $this->assertEquals('faa:bab', $parser->parseUrl('http://[v1F.faa:bab]')->getIPAddress());
@@ -95,7 +95,7 @@ class UrlParserTest extends \PHPUnit_Framework_TestCase
 
     public function testGetPort()
     {
-        $parser = new UrlParser();
+        $parser = new UriParser();
         $this->assertEquals(false, $parser->parseUrl('http://www.example.com')->getPort(false));
         $this->assertEquals(80, $parser->parseUrl('http://www.example.com')->getPort(true));
         $this->assertEquals(443, $parser->parseUrl('https://www.example.com')->getPort(true));
@@ -108,7 +108,7 @@ class UrlParserTest extends \PHPUnit_Framework_TestCase
 
     public function testGetPath()
     {
-        $parser = new UrlParser();
+        $parser = new UriParser();
         $this->assertSame('', $parser->parseUrl('http://www.example.com')->getPath());
         $this->assertEquals('/path/to/file', $parser->parseUrl('http://www.example.com/path/to/file')->getPath());
         $this->assertEquals('/path/to/file', $parser->parseUrl('http:/path/to/file')->getPath());
@@ -118,7 +118,7 @@ class UrlParserTest extends \PHPUnit_Framework_TestCase
 
     public function testGetExtension()
     {
-        $parser = new UrlParser();
+        $parser = new UriParser();
         $this->assertSame(false, $parser->parseUrl('http://www.example.com/NoExtension')->getFileExtension());
         $this->assertSame('txt', $parser->parseUrl('http://www.example.com/file.txt')->getFileExtension());
         $this->assertSame(false, $parser->parseUrl('http://www.example.com/dir.name/NoExtension')->getFileExtension());
@@ -127,7 +127,7 @@ class UrlParserTest extends \PHPUnit_Framework_TestCase
 
     public function testGetQuery()
     {
-        $parser = new UrlParser();
+        $parser = new UriParser();
         $this->assertEquals(
             'foo=bar',
             $parser->parseUrl('http://www.example.com/path/to/file?foo=bar#frag')->getQuery()
@@ -136,7 +136,7 @@ class UrlParserTest extends \PHPUnit_Framework_TestCase
 
     public function testGetVariables()
     {
-        $parser = new UrlParser();
+        $parser = new UriParser();
         $this->assertEquals([], $parser->parseUrl('http://www.example.com/path/to/file#frag')->getVariables());
         $this->assertEquals(
             ['foo' => 'bar'],
@@ -150,7 +150,7 @@ class UrlParserTest extends \PHPUnit_Framework_TestCase
 
     public function testGetFragment()
     {
-        $parser = new UrlParser();
+        $parser = new UriParser();
         $this->assertEquals(
             'frag',
             $parser->parseUrl('http://www.example.com/path/to/file?foo=bar#frag')->getFragment()

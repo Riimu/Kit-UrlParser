@@ -2,7 +2,7 @@
 
 require __DIR__ . '/../src/autoload.php';
 
-$parser = new \Riimu\Kit\UrlParser\UrlParser();
+$parser = new \Riimu\Kit\UrlParser\UriParser();
 $info = $parser->parseUrl('http://foo:bar@www.example.com:80/path/part?query=part#fragmentPart');
 var_dump($info->getHostname()); // Outputs 'www.example.com'
 

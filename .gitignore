@@ -1,3 +1,5 @@
 .idea
 api
 coverage
+vendor
+composer.lock

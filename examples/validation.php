@@ -6,7 +6,7 @@ function is_valid_url($url) {
     static $parser = null;
 
     if ($parser === null) {
-        $parser = new \Riimu\Kit\UrlParser\UrlParser();
+        $parser = new \Riimu\Kit\UrlParser\UriParser();
     }
 
     if (($info = $parser->parseUrl($url)) === null) {

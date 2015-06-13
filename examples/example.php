@@ -2,7 +2,7 @@
 
 require __DIR__ . '/../src/autoload.php';
 
-$parser = new \Riimu\Kit\UrlParser\UrlParser();
+$parser = new \Riimu\Kit\UrlParser\UriParser();
 $info = $parser->parseUrl('http://jane:pass123@www.example.com:8080/site/index.php?action=login&prev=index#form');
 
 // The following outputs: http://jane:pass123@www.example.com:8080/site/index.php?action=login&prev=index#form
