@@ -310,11 +310,13 @@ class Uri implements UriInterface
      */
     public function withScheme($scheme)
     {
-        if (!preg_match(UriPattern::getSchemePattern(), $scheme)) {
-            throw new \InvalidArgumentException("Invalid scheme '$scheme'");
+        $scheme = (string) $scheme;
+
+        if ($scheme === '' || preg_match(UriPattern::getSchemePattern(), $scheme)) {
+            return $this->with('scheme', strtolower($scheme));
         }
 
-        return $this->with('scheme', strtolower($scheme));
+        throw new \InvalidArgumentException("Invalid scheme '$scheme'");
     }
 
     /**
@@ -335,12 +337,12 @@ class Uri implements UriInterface
     {
         $uri = clone $this;
         $uri->username = $this->encode($user, true);
-        $uri->password = '';
 
-        if ($uri->username !== '') {
-            $uri->password = $this->encode($password, true);
+        if ($uri->username === '') {
+            $password = '';
         }
 
+        $uri->password = $this->encode($password, true);
         return $uri;
     }
 
@@ -358,11 +360,13 @@ class Uri implements UriInterface
      */
     public function withHost($host)
     {
-        if (!preg_match(UriPattern::getHostPattern(), $host)) {
-            throw new \InvalidArgumentException("Invalid host '$host'");
+        $host = (string) $host;
+
+        if ($host === '' || preg_match(UriPattern::getHostPattern(), $host)) {
+            return $this->with('host', strtolower($host));
         }
 
-        return $this->with('host', strtolower($host));
+        throw new \InvalidArgumentException("Invalid host '$host'");
     }
 
     /**
@@ -424,7 +428,10 @@ class Uri implements UriInterface
 
     public function withPathSegments(array $segments)
     {
-        return $this->with('path', implode('/', array_map('rawurlencode', array_filter($segments, 'strlen'))));
+        return $this->with(
+            'path',
+            implode('/', array_map('rawurlencode', array_filter($segments, 'strlen')))
+        );
     }
 
     /**

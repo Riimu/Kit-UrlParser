@@ -52,14 +52,14 @@ class UriParser
     }
 
     /**
-     * Builds the URL object from the matched components.
+     * Builds the URL object from the parsed components.
      * @param string[] $components Components parsed from the URL
      * @return Uri The generated URL representation
      */
     private function buildUri(array $components)
     {
+        $components = array_filter($components, 'strlen');
         $uri = new Uri();
-
         $parts = [
             'scheme'        => 'withScheme',
             'host'          => 'withHost',
@@ -68,31 +68,19 @@ class UriParser
             'path-absolute' => 'withPath',
             'path-noscheme' => 'withPath',
             'path-rootless' => 'withPath',
-            'path-empty'    => 'withPath',
             'query'         => 'withQuery',
             'fragment'      => 'withFragment',
         ];
 
         foreach ($parts as $key => $method) {
-            if (isset($components[$key]) && $components[$key] !== '') {
-                $uri = $uri->$method($components[$key]);
+            if (isset($components[$key])) {
+                $uri = call_user_func([$uri, $method], $components[$key]);
             }
         }
 
-        return $this->setUserInfo($uri, $components);
-    }
-
-    /**
-     * Returns the URL object with provided username and password.
-     * @param Uri $uri The URL representation to modify
-     * @param string[] $components Components parsed from the URL
-     * @return Uri The generated URL representation
-     */
-    private function setUserInfo(Uri $uri, array $components)
-    {
-        if (isset($components['userinfo']) && $components['userinfo'] !== '') {
-            list($user, $password) = explode(':', $components['userinfo'], 2) + ['', ''];
-            return $uri->withUserInfo($user, $password);
+        if (isset($components['userinfo'])) {
+            list($username, $password) = preg_split('/:|$/', $components['userinfo'], 2);
+            $uri = $uri->withUserInfo($username, $password);
         }
 
         return $uri;
