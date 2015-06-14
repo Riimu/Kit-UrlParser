@@ -58,8 +58,6 @@ class UriParser
      */
     private function buildUri(array $components)
     {
-        $components = array_filter($components, 'strlen');
-        $uri = new Uri();
         $parts = [
             'scheme'        => 'withScheme',
             'host'          => 'withHost',
@@ -72,15 +70,15 @@ class UriParser
             'fragment'      => 'withFragment',
         ];
 
-        foreach ($parts as $key => $method) {
-            if (isset($components[$key])) {
-                $uri = call_user_func([$uri, $method], $components[$key]);
-            }
-        }
+        $uri = new Uri();
 
-        if (isset($components['userinfo'])) {
-            list($username, $password) = preg_split('/:|$/', $components['userinfo'], 2);
-            $uri = $uri->withUserInfo(rawurldecode($username), rawurldecode($password));
+        foreach (array_filter($components, 'strlen') as $key => $value) {
+            if (isset($parts[$key])) {
+                $uri = call_user_func([$uri, $parts[$key]], $value);
+            } elseif ($key === 'userinfo') {
+                list($username, $password) = preg_split('/:|$/', $value, 2);
+                $uri = $uri->withUserInfo(rawurldecode($username), rawurldecode($password));
+            }
         }
 
         return $uri;
