@@ -5,21 +5,38 @@ namespace Riimu\Kit\UrlParser;
 use Psr\Http\Message\UriInterface;
 
 /**
+ * Immutable URI value object that also provides methods for manipulation.
  * @author Riikka Kalliomäki <riikka.kalliomaki@gmail.com>
  * @copyright Copyright (c) 2015, Riikka Kalliomäki
  * @license http://opensource.org/licenses/mit-license.php MIT License
  */
 class Uri implements UriInterface
 {
+    /** @var string The scheme component of the URI */
     private $scheme = '';
+
+    /** @var string The username part of the user information component */
     private $username = '';
+
+    /** @var string The password part of the user information component */
     private $password = '';
+
+    /** @var string The host component of the URI */
     private $host = '';
+
+    /** @var int|null The port for the authority component or null for none */
     private $port = null;
+
+    /** @var string The path component of the URI */
     private $path = '';
+
+    /** @var string The query component of the URI */
     private $query = '';
+
+    /** @var string The fragment component of the URI */
     private $fragment = '';
 
+    /** @var int[] List of known ports for different schemes */
     private static $standardPorts = [
         'ftp'   => 21,
         'http'  => 80,
@@ -27,18 +44,14 @@ class Uri implements UriInterface
     ];
 
     /**
-     * Retrieve the scheme component of the URI.
+     * Returns the scheme component of the URI.
      *
-     * If no scheme is present, this method MUST return an empty string.
-     *
-     * The value returned MUST be normalized to lowercase, per RFC 3986
-     * Section 3.1.
-     *
-     * The trailing ":" character is not part of the scheme and MUST NOT be
-     * added.
+     * Note that the returned value will always be normalized to lowercase,
+     * as per RFC 3986 Section 3.1. If no scheme has been provided, an empty
+     * string will be returned instead.
      *
      * @see https://tools.ietf.org/html/rfc3986#section-3.1
-     * @return string The URI scheme.
+     * @return string The URI scheme or an empty string if no scheme has been provided
      */
     public function getScheme()
     {
@@ -46,22 +59,19 @@ class Uri implements UriInterface
     }
 
     /**
-     * Retrieve the authority component of the URI.
+     * Returns the authority component of the URI.
      *
-     * If no authority information is present, this method MUST return an empty
-     * string.
+     * If no authority information has been provided, an empty string will be
+     * returned instead. Note that the host component in the authority component
+     * will always be normalized to lowercase as per RFC 3986 Section 3.2.2.
      *
-     * The authority syntax of the URI is:
+     * Also note that even if a port has been provided, but it is the standard port
+     * for the current scheme, the port will not be included in the returned value.
      *
-     * <pre>
-     * [user-info@]host[:port]
-     * </pre>
-     *
-     * If the port component is not set or is the standard port for the current
-     * scheme, it SHOULD NOT be included.
+     * The format of the returned value is `[user-info@]host[:port]`
      *
      * @see https://tools.ietf.org/html/rfc3986#section-3.2
-     * @return string The URI authority, in "[user-info@]host[:port]" format.
+     * @return string The URI authority or an empty string if no authority information has been provided
      */
     public function getAuthority()
     {
@@ -81,19 +91,15 @@ class Uri implements UriInterface
     }
 
     /**
-     * Retrieve the user information component of the URI.
+     * Returns the user information component of the URI.
      *
-     * If no user information is present, this method MUST return an empty
-     * string.
+     * The user information component contains the username and password in the
+     * URI separated by a colon. If no username has been provided, an empty
+     * string will be returned instead. If no password has been provided, the returned
+     * value will only contain the username without the delimiting colon.
      *
-     * If a user is present in the URI, this will return that value;
-     * additionally, if the password is also present, it will be appended to the
-     * user value, with a colon (":") separating the values.
-     *
-     * The trailing "@" character is not part of the user information and MUST
-     * NOT be added.
-     *
-     * @return string The URI user information, in "username[:password]" format.
+     * @see http://tools.ietf.org/html/rfc3986#section-3.2.1
+     * @return string The URI user information or an empty string if no username has been provided
      */
     public function getUserInfo()
     {
@@ -106,11 +112,19 @@ class Uri implements UriInterface
         return $this->username;
     }
 
+    /**
+     * Returns the decoded username from the URI.
+     * @return string The decoded username
+     */
     public function getUsername()
     {
         return rawurldecode($this->username);
     }
 
+    /**
+     * Returns the decoded password from the URI.
+     * @return string the decoded password
+     */
     public function getPassword()
     {
         return rawurldecode($this->password);
@@ -119,19 +133,22 @@ class Uri implements UriInterface
     /**
      * Retrieve the host component of the URI.
      *
-     * If no host is present, this method MUST return an empty string.
-     *
-     * The value returned MUST be normalized to lowercase, per RFC 3986
-     * Section 3.2.2.
+     * Note that the returned value will always be normalized to lowercase,
+     * as per RFC 3986 Section 3.2.2. If no host has been provided, an empty
+     * string will be returned instead.
      *
      * @see http://tools.ietf.org/html/rfc3986#section-3.2.2
-     * @return string The URI host.
+     * @return string The URI host or an empty string if no host has been provided
      */
     public function getHost()
     {
         return $this->host;
     }
 
+    /**
+     * Returns the IP address from the host component.
+     * @return string|null IP address from the host or null if the host is not an IP address
+     */
     public function getIpAddress()
     {
         preg_match(UriPattern::getHostPattern(), $this->getHost(), $match);
@@ -145,34 +162,42 @@ class Uri implements UriInterface
         return null;
     }
 
+    /**
+     * Returns the top level domain from the host component.
+     *
+     * Note that if the host component represents an IP address, an empty string
+     * will be returned instead. Additionally, if the host component ends in a period,
+     * the section prior that period will be returned instead. If no period is present
+     * in the host component, the entire host component will be returned instead.
+     *
+     * @return string The top level domain or an empty string, if no TLD is present
+     */
     public function getTld()
     {
-        $host = rawurldecode($this->getHost());
-        $domain = strrchar($host, '.');
-
-        if ($this->getIpAddress() !== null || $host === '') {
+        if ($this->getIpAddress() !== null) {
             return '';
-        } elseif ($domain === false) {
-            return $host;
         }
 
-        return substr($domain, 1);
+        $host = rawurldecode($this->getHost());
+        $tld = strrchr($host, '.');
+
+        if ($tld === '.') {
+            $host = substr($host, 0, -1);
+            $tld = strrchr($host, '.');
+        }
+
+        return $tld === false ? $host : substr($tld, 1);
     }
 
     /**
-     * Retrieve the port component of the URI.
+     * Returns the port component of the URI.
      *
-     * If a port is present, and it is non-standard for the current scheme,
-     * this method MUST return it as an integer. If the port is the standard port
-     * used with the current scheme, this method SHOULD return null.
+     * If no port has been provided, this method will return a null instead.
+     * Note that this method will also return a null, if the provided port is
+     * the standard port for the current scheme.
      *
-     * If no port is present, and no scheme is present, this method MUST return
-     * a null value.
-     *
-     * If no port is present, but a scheme is present, this method MAY return
-     * the standard port for that scheme, but SHOULD return null.
-     *
-     * @return null|int The URI port.
+     * @see http://tools.ietf.org/html/rfc3986#section-3.2.3
+     * @return int|null The URI port or null if no port has been provided
      */
     public function getPort()
     {
@@ -183,6 +208,16 @@ class Uri implements UriInterface
         return $this->port;
     }
 
+    /**
+     * Returns the standard port for the current scheme.
+     *
+     * The known ports are:
+     *  - ftp   : 21
+     *  - http  : 80
+     *  - https : 443
+     *
+     * @return int|null The standard port for the current scheme or null if not known
+     */
     public function getStandardPort()
     {
         $scheme = $this->getScheme();
@@ -195,44 +230,36 @@ class Uri implements UriInterface
     }
 
     /**
-     * Retrieve the path component of the URI.
+     * Returns the path component of the URI.
      *
-     * The path can either be empty or absolute (starting with a slash) or
-     * rootless (not starting with a slash). Implementations MUST support all
-     * three syntaxes.
+     * If no path has been provided, an empty string will be returned instead.
      *
-     * Normally, the empty path "" and absolute path "/" are considered equal as
-     * defined in RFC 7230 Section 2.7.3. But this method MUST NOT automatically
-     * do this normalization because in contexts with a trimmed base path, e.g.
-     * the front controller, this difference becomes significant. It's the task
-     * of the user to handle both "" and "/".
-     *
-     * The value returned MUST be percent-encoded, but MUST NOT double-encode
-     * any characters. To determine what characters to encode, please refer to
-     * RFC 3986, Sections 2 and 3.3.
-     *
-     * As an example, if the value should include a slash ("/") not intended as
-     * delimiter between path segments, that value MUST be passed in encoded
-     * form (e.g., "%2F") to the instance.
-     *
-     * @see https://tools.ietf.org/html/rfc3986#section-2
      * @see https://tools.ietf.org/html/rfc3986#section-3.3
-     * @return string The URI path.
+     * @return string The URI path or an empty string if no path has been provided
      */
     public function getPath()
     {
         return $this->path;
     }
 
+    /**
+     * Returns the decoded path segments from the path component.
+     * @return string[] The decoded non empty path segments
+     */
     public function getPathSegments()
     {
         return array_map('rawurldecode', array_filter(explode('/', $this->path), 'strlen'));
     }
 
+    /**
+     * Returns the file extension for the last segment in the path.
+     * @return string The file extension from the last non empty segment
+     */
     public function getPathExtension()
     {
-        $filename = array_slice($this->getPathSegments(), -1);
-        $extension = strrchar($filename, '.');
+        $segments = $this->getPathSegments();
+        $filename = array_pop($segments);
+        $extension = strrchr($filename, '.');
 
         if ($extension === false) {
             return '';
@@ -242,30 +269,23 @@ class Uri implements UriInterface
     }
 
     /**
-     * Retrieve the query string of the URI.
+     * Returns the query string of the URI.
      *
-     * If no query string is present, this method MUST return an empty string.
+     * If no query string has been provided, an empty string will be returned
+     * instead.
      *
-     * The leading "?" character is not part of the query and MUST NOT be
-     * added.
-     *
-     * The value returned MUST be percent-encoded, but MUST NOT double-encode
-     * any characters. To determine what characters to encode, please refer to
-     * RFC 3986, Sections 2 and 3.4.
-     *
-     * As an example, if a value in a key/value pair of the query string should
-     * include an ampersand ("&") not intended as a delimiter between values,
-     * that value MUST be passed in encoded form (e.g., "%26") to the instance.
-     *
-     * @see https://tools.ietf.org/html/rfc3986#section-2
      * @see https://tools.ietf.org/html/rfc3986#section-3.4
-     * @return string The URI query string.
+     * @return string The URI query string or an empty string if no query has been provided
      */
     public function getQuery()
     {
         return $this->query;
     }
 
+    /**
+     * Returns the decoded parameters parsed from the query component.
+     * @return string[] The decoded parameters parsed from the query
+     */
     public function getQueryParameters()
     {
         parse_str($this->encode($this->query, false, '&='), $parameters);
@@ -273,20 +293,12 @@ class Uri implements UriInterface
     }
 
     /**
-     * Retrieve the fragment component of the URI.
+     * Returns the fragment component of the URI.
      *
-     * If no fragment is present, this method MUST return an empty string.
+     * If no fragment has been provided, an empty string will be returned instead.
      *
-     * The leading "#" character is not part of the fragment and MUST NOT be
-     * added.
-     *
-     * The value returned MUST be percent-encoded, but MUST NOT double-encode
-     * any characters. To determine what characters to encode, please refer to
-     * RFC 3986, Sections 2 and 3.5.
-     *
-     * @see https://tools.ietf.org/html/rfc3986#section-2
      * @see https://tools.ietf.org/html/rfc3986#section-3.5
-     * @return string The URI fragment.
+     * @return string The URI fragment or an empty string if no fragment has been provided
      */
     public function getFragment()
     {
@@ -294,19 +306,16 @@ class Uri implements UriInterface
     }
 
     /**
-     * Return an instance with the specified scheme.
+     * Returns a new URI instance with the specified scheme.
      *
-     * This method MUST retain the state of the current instance, and return
-     * an instance that contains the specified scheme.
+     * This method allows all different kinds of schemes. Note, however,
+     * the different components are only validated based on the generic
+     * URI syntax. An empty string can be used to remove the scheme. Note
+     * that all provided hosts will be normalized to lowercase.
      *
-     * Implementations MUST support the schemes "http" and "https" case
-     * insensitively, and MAY accommodate other schemes if required.
-     *
-     * An empty scheme is equivalent to removing the scheme.
-     *
-     * @param string $scheme The scheme to use with the new instance.
-     * @return self A new instance with the specified scheme.
-     * @throws \InvalidArgumentException for invalid or unsupported schemes.
+     * @param string $scheme The scheme to use with the new instance
+     * @return Uri A new instance with the specified scheme
+     * @throws \InvalidArgumentException If the scheme is invalid
      */
     public function withScheme($scheme)
     {
@@ -320,43 +329,41 @@ class Uri implements UriInterface
     }
 
     /**
-     * Return an instance with the specified user information.
+     * Returns a new URI instance with the specified user information.
      *
-     * This method MUST retain the state of the current instance, and return
-     * an instance that contains the specified user information.
+     * Note that the password is optional, but unless an username is provided,
+     * the password will be ignored. Note that this method assumes that neither
+     * the username nor the password contains encoded characters. Thus, any
+     * encoded characters will be double encoded, if present. An empty username
+     * can be used to remove the user information.
      *
-     * Password is optional, but the user information MUST include the
-     * user; an empty string for the user is equivalent to removing user
-     * information.
-     *
-     * @param string $user The user name to use for authority.
-     * @param null|string $password The password associated with $user.
-     * @return self A new instance with the specified user information.
+     * @param string $user The username to use for the authority component
+     * @param string|null $password The password associated with the user
+     * @return Uri A new instance with the specified user information
      */
     public function withUserInfo($user, $password = null)
     {
         $uri = clone $this;
-        $uri->username = $this->encode($user, true);
+        $uri->username = rawurlencode($user);
 
         if ($uri->username === '') {
             $password = '';
         }
 
-        $uri->password = $this->encode($password, true);
+        $uri->password = rawurlencode($password);
         return $uri;
     }
 
     /**
-     * Return an instance with the specified host.
+     * Returns a new URI instance with the specified host.
      *
-     * This method MUST retain the state of the current instance, and return
-     * an instance that contains the specified host.
+     * An empty host can be used to remove the host. Note that since host names
+     * are treated in a case insensitive manner, the host will be normalized
+     * to lowercase.
      *
-     * An empty host value is equivalent to removing the host.
-     *
-     * @param string $host The hostname to use with the new instance.
-     * @return self A new instance with the specified host.
-     * @throws \InvalidArgumentException for invalid hostnames.
+     * @param string $host The hostname to use with the new instance
+     * @return Uri A new instance with the specified host
+     * @throws \InvalidArgumentException If the hostname is invalid.
      */
     public function withHost($host)
     {
@@ -370,21 +377,15 @@ class Uri implements UriInterface
     }
 
     /**
-     * Return an instance with the specified port.
+     * Returns a new URI instance with the specified port.
      *
-     * This method MUST retain the state of the current instance, and return
-     * an instance that contains the specified port.
+     * A null value can be used to remove the port number. Note that if an
+     * invalid port number is provided (a number less than 0 or more than
+     * 65535), an exception will be thrown.
      *
-     * Implementations MUST raise an exception for ports outside the
-     * established TCP and UDP port ranges.
-     *
-     * A null value provided for the port is equivalent to removing the port
-     * information.
-     *
-     * @param null|int $port The port to use with the new instance; a null value
-     *     removes the port information.
-     * @return self A new instance with the specified port.
-     * @throws \InvalidArgumentException for invalid ports.
+     * @param int|null $port The port to use with the new instance
+     * @return Uri A new instance with the specified port
+     * @throws \InvalidArgumentException If the port is invalid
      */
     public function withPort($port)
     {
@@ -400,32 +401,33 @@ class Uri implements UriInterface
     }
 
     /**
-     * Return an instance with the specified path.
+     * Returns a new URI instance with the specified path.
      *
-     * This method MUST retain the state of the current instance, and return
-     * an instance that contains the specified path.
+     * The provided path may or may not begin with a forward slash. The path
+     * will be automatically normalized with the appropriate number of slashes
+     * once the Uri is generated. An empty string can be used to remove the
+     * path. The path may also contain percent encoded characters as these
+     * characters will not be double encoded.
      *
-     * The path can either be empty or absolute (starting with a slash) or
-     * rootless (not starting with a slash). Implementations MUST support all
-     * three syntaxes.
-     *
-     * If the path is intended to be domain-relative rather than path relative then
-     * it must begin with a slash ("/"). Paths not starting with a slash ("/")
-     * are assumed to be relative to some base path known to the application or
-     * consumer.
-     *
-     * Users can provide both encoded and decoded path characters.
-     * Implementations ensure the correct encoding as outlined in getPath().
-     *
-     * @param string $path The path to use with the new instance.
-     * @return self A new instance with the specified path.
-     * @throws \InvalidArgumentException for invalid paths.
+     * @param string $path The path to use with the new instance
+     * @return Uri A new instance with the specified path
      */
     public function withPath($path)
     {
         return $this->with('path', $this->encode($path, true, '@/'));
     }
 
+    /**
+     * Returns a new URI instance with path constructed from given path segments.
+     *
+     * Note that all the segments are assumed to be decoded. Thus any percent
+     * encoded characters in the segments will be double encoded. Due to aggressive
+     * encoding, this method will even encode forward slashes in the provided
+     * segments.
+     *
+     * @param string[] $segments Path segments for the new path
+     * @return Uri A new instance with the specified path
+     */
     public function withPathSegments(array $segments)
     {
         return $this->with(
@@ -435,49 +437,57 @@ class Uri implements UriInterface
     }
 
     /**
-     * Return an instance with the specified query string.
+     * Returns a new URI instance with the specified query string.
      *
-     * This method MUST retain the state of the current instance, and return
-     * an instance that contains the specified query string.
+     * An empty string can be used to remove the query. The provided value may
+     * contain both encoded and decoded characters. Encoded characters will not
+     * be double encoded in query.
      *
-     * Users can provide both encoded and decoded query characters.
-     * Implementations ensure the correct encoding as outlined in getQuery().
-     *
-     * An empty query string value is equivalent to removing the query string.
-     *
-     * @param string $query The query string to use with the new instance.
-     * @return self A new instance with the specified query string.
-     * @throws \InvalidArgumentException for invalid query strings.
+     * @param string $query The query string to use with the new instance
+     * @return Uri A new instance with the specified query string
      */
     public function withQuery($query)
     {
         return $this->with('query', $this->encode($query, true, ':@/?'));
     }
 
+    /**
+     * Returns a new URI instance with the query constructed from the given parameters.
+     *
+     * The provided associative array will be used to construct the query string.
+     * Even characters such as the ampersand and equal sign will be encoded in
+     * resulting string. Note the any percent encoded characters will be double
+     * encoded, since this method assumes that all the values are unencoded.
+     *
+     * @param array $parameters Parameters for the query
+     * @return Uri A new instance with the specified query string
+     */
     public function withQueryParameters(array $parameters)
     {
         return $this->with('query', http_build_query($parameters, '', '&', PHP_QUERY_RFC3986));
     }
 
     /**
-     * Return an instance with the specified URI fragment.
+     * Returns a new URI instance with the specified URI fragment.
      *
-     * This method MUST retain the state of the current instance, and return
-     * an instance that contains the specified URI fragment.
+     * An empty string can be used to remove the fragment. The provided value may
+     * contain both encoded and unencoded characters. The encoded characters will
+     * not be double encoded.
      *
-     * Users can provide both encoded and decoded fragment characters.
-     * Implementations ensure the correct encoding as outlined in getFragment().
-     *
-     * An empty fragment value is equivalent to removing the fragment.
-     *
-     * @param string $fragment The fragment to use with the new instance.
-     * @return self A new instance with the specified fragment.
+     * @param string $fragment The fragment to use with the new instance
+     * @return Uri A new instance with the specified fragment
      */
     public function withFragment($fragment)
     {
         return $this->with('fragment', $this->encode($fragment, true, ':@/?'));
     }
 
+    /**
+     * Returns a new instance with the given value, or the same instance if the value is the same.
+     * @param string $variable Name of the variable to change
+     * @param string $value New value for the variable
+     * @return Uri A new instance or the same instance
+     */
     private function with($variable, $value)
     {
         if ($value === $this->$variable) {
@@ -489,45 +499,39 @@ class Uri implements UriInterface
         return $uri;
     }
 
+    /**
+     * Percent encodes the value without double encoding.
+     * @param string $string The value to encode
+     * @param bool $allowSubDelimiters Whether to allow sub delimiters in the value
+     * @param string $extra Additional allowed characters in the value
+     * @return string The encoded string
+     */
     private function encode($string, $allowSubDelimiters = false, $extra = '')
     {
         $normalized = preg_replace_callback('/%([a-f][0-9a-fA-F]|[0-9a-fA-F][a-f])/', function ($match) {
-            return '%' . strtoupper($match[0]);
+            return '%' . strtoupper($match[1]);
         }, (string) $string);
 
         if ($allowSubDelimiters) {
             $extra .= "!$&'()*+,;=";
         }
 
-        $pattern = sprintf('/[^A-Za-z0-9\\-._~%s]|%%(?![0-9a-fA-F]{2})/', preg_quote($extra, '/'));
+        $pattern = sprintf('/[^%%A-Za-z0-9\\-._~%s]|%%(?![0-9a-fA-F]{2})/', preg_quote($extra, '/'));
 
         return preg_replace_callback($pattern, function ($match) {
-            return sprintf('%02X', ord($match[0]));
+            return sprintf('%%%02X', ord($match[0]));
         }, $normalized);
     }
 
     /**
-     * Return the string representation as a URI reference.
+     * Returns the string representation for the URI.
      *
-     * Depending on which components of the URI are present, the resulting
-     * string is either a full URI or relative reference according to RFC 3986,
-     * Section 4.1. The method concatenates the various components of the URI,
-     * using the appropriate delimiters:
+     * The resulting URI will be composed of the provided components. Any components
+     * that have not been provided will be omitted from the constructed URI. The
+     * provided path will be normalized based on whether the authority is included
+     * in the URI or not.
      *
-     * - If a scheme is present, it MUST be suffixed by ":".
-     * - If an authority is present, it MUST be prefixed by "//".
-     * - The path can be concatenated without delimiters. But there are two
-     *   cases where the path has to be adjusted to make the URI reference
-     *   valid as PHP does not allow to throw an exception in __toString():
-     *     - If the path is rootless and an authority is present, the path MUST
-     *       be prefixed by "/".
-     *     - If the path is starting with more than one "/" and no authority is
-     *       present, the starting slashes MUST be reduced to one.
-     * - If a query is present, it MUST be prefixed by "?".
-     * - If a fragment is present, it MUST be prefixed by "#".
-     *
-     * @see http://tools.ietf.org/html/rfc3986#section-4.1
-     * @return string
+     * @return string The constructed URI
      */
     public function __toString()
     {
@@ -551,6 +555,10 @@ class Uri implements UriInterface
         return $uri;
     }
 
+    /**
+     * Returns the path normalized for the string URI representation.
+     * @return string The normalized path for the string representation
+     */
     private function getNormalizedUriPath()
     {
         $path = $this->getPath();

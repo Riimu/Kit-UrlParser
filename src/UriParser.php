@@ -80,7 +80,7 @@ class UriParser
 
         if (isset($components['userinfo'])) {
             list($username, $password) = preg_split('/:|$/', $components['userinfo'], 2);
-            $uri = $uri->withUserInfo($username, $password);
+            $uri = $uri->withUserInfo(rawurldecode($username), rawurldecode($password));
         }
 
         return $uri;
