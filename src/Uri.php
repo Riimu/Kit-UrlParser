@@ -319,13 +319,7 @@ class Uri implements UriInterface
      */
     public function withScheme($scheme)
     {
-        $scheme = (string) $scheme;
-
-        if ($scheme === '' || preg_match(UriPattern::getSchemePattern(), $scheme)) {
-            return $this->with('scheme', strtolower($scheme));
-        }
-
-        throw new \InvalidArgumentException("Invalid scheme '$scheme'");
+        return $this->withValidate('scheme', strtolower($scheme), UriPattern::getSchemePattern());
     }
 
     /**
@@ -367,13 +361,7 @@ class Uri implements UriInterface
      */
     public function withHost($host)
     {
-        $host = (string) $host;
-
-        if ($host === '' || preg_match(UriPattern::getHostPattern(), $host)) {
-            return $this->with('host', strtolower($host));
-        }
-
-        throw new \InvalidArgumentException("Invalid host '$host'");
+        return $this->withValidate('host', strtolower($host), UriPattern::getHostPattern());
     }
 
     /**
@@ -483,9 +471,25 @@ class Uri implements UriInterface
     }
 
     /**
+     * Returns a new instance with the given value if the pattern matches the value.
+     * @param string $variable Name of the variable to change
+     * @param string $value New value of the variable
+     * @param string $pattern Pattern to match the value against
+     * @return Uri A new instance or the same instance
+     */
+    private function withValidate($variable, $value, $pattern)
+    {
+        if ($value === '' || preg_match($pattern, $value)) {
+            return $this->with($variable, $value);
+        }
+
+        throw new \InvalidArgumentException("Invalid $variable '$value'");
+    }
+
+    /**
      * Returns a new instance with the given value, or the same instance if the value is the same.
      * @param string $variable Name of the variable to change
-     * @param string $value New value for the variable
+     * @param mixed $value New value for the variable
      * @return Uri A new instance or the same instance
      */
     private function with($variable, $value)
