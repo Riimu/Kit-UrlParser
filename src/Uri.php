@@ -95,12 +95,6 @@ class Uri implements UriInterface
      */
     public function getUserInfo()
     {
-        if ($this->username === '') {
-            return '';
-        } elseif ($this->password !== '') {
-            return $this->username . ':' . $this->password;
-        }
-
         return $this->userInfo;
     }
 
@@ -194,7 +188,11 @@ class Uri implements UriInterface
     {
         $scheme = strtolower($scheme);
 
-        return $this->withValidate('scheme', strtolower($scheme), UriPattern::getSchemePattern());
+        if ($scheme === '' || preg_match(UriPattern::getSchemePattern(), $scheme)) {
+            return $this->with('scheme', $scheme);
+        }
+
+        throw new \InvalidArgumentException("Invalid scheme '$scheme'");
     }
 
     /**
@@ -235,7 +233,11 @@ class Uri implements UriInterface
      */
     public function withHost($host)
     {
-        return $this->withValidate('host', strtolower($host), UriPattern::getHostPattern());
+        if (preg_match(UriPattern::getHostPattern(), $host)) {
+            return $this->with('host', strtolower($host));
+        }
+
+        throw new \InvalidArgumentException("Invalid host '$host'");
     }
 
     /**
@@ -307,22 +309,6 @@ class Uri implements UriInterface
     public function withFragment($fragment)
     {
         return $this->with('fragment', $this->encode($fragment, true, ':@/?'));
-    }
-
-    /**
-     * Returns a new instance with the given value if the pattern matches the value.
-     * @param string $variable Name of the variable to change
-     * @param string $value New value of the variable
-     * @param string $pattern Pattern to match the value against
-     * @return Uri A new instance or the same instance
-     */
-    private function withValidate($variable, $value, $pattern)
-    {
-        if ($value === '' || preg_match($pattern, $value)) {
-            return $this->with($variable, $value);
-        }
-
-        throw new \InvalidArgumentException("Invalid $variable '$value'");
     }
 
     /**

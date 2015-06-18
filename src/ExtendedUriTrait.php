@@ -3,6 +3,7 @@
 namespace Riimu\Kit\UrlParser;
 
 /**
+ * Provides convenience methods for accessing the standard URI interface.
  * @author Riikka Kalliomäki <riikka.kalliomaki@gmail.com>
  * @copyright Copyright (c) 2015, Riikka Kalliomäki
  * @license http://opensource.org/licenses/mit-license.php MIT License
@@ -17,12 +18,48 @@ trait ExtendedUriTrait
     ];
 
     /**
+     * Returns the scheme component of the URI.
+     * @return string The URI scheme
+     */
+    abstract public function getScheme();
+
+    /**
+     * Returns the standard port for the current scheme.
+     *
+     * The known ports are:
+     *  - ftp   : 21
+     *  - http  : 80
+     *  - https : 443
+     *
+     * @return int|null The standard port for the current scheme or null if not known
+     */
+    public function getStandardPort()
+    {
+        $scheme = $this->getScheme();
+
+        if (isset(self::$standardPorts[$scheme])) {
+            return self::$standardPorts[$scheme];
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the user information component of the URI.
+     * @return string The URI user information
+     */
+    abstract public function getUserInfo();
+
+    /**
      * Returns the decoded username from the URI.
      * @return string The decoded username
      */
     public function getUsername()
     {
-        return rawurldecode($this->username);
+        $info = $this->getUserInfo();
+        $username = strstr($info, ':', true);
+
+        return rawurldecode($username === false ? $info : $username);
     }
 
     /**
@@ -31,7 +68,9 @@ trait ExtendedUriTrait
      */
     public function getPassword()
     {
-        return rawurldecode($this->password);
+        $password = strstr($this->getUserInfo(), ':');
+
+        return $password === false ? '' : rawurldecode(substr($password, 1));
     }
 
     /**
@@ -63,7 +102,7 @@ trait ExtendedUriTrait
      * Note that if the host component represents an IP address, an empty string
      * will be returned instead. Additionally, if the host component ends in a period,
      * the section prior that period will be returned instead. If no period is present
-     * in the host component, the entire host component will be returned instead.
+     * in the host component, the entire host component will be returned.
      *
      * @return string The top level domain or an empty string, if no TLD is present
      */
@@ -85,27 +124,6 @@ trait ExtendedUriTrait
     }
 
     /**
-     * Returns the standard port for the current scheme.
-     *
-     * The known ports are:
-     *  - ftp   : 21
-     *  - http  : 80
-     *  - https : 443
-     *
-     * @return int|null The standard port for the current scheme or null if not known
-     */
-    public function getStandardPort()
-    {
-        $scheme = $this->getScheme();
-
-        if (isset(self::$standardPorts[$scheme])) {
-            return self::$standardPorts[$scheme];
-        }
-
-        return null;
-    }
-
-    /**
      * Returns the path component of the URI.
      * @return string The URI path
      */
@@ -118,18 +136,6 @@ trait ExtendedUriTrait
     public function getPathSegments()
     {
         return array_map('rawurldecode', array_filter(explode('/', $this->getPath()), 'strlen'));
-    }
-
-    abstract public function getQuery();
-
-    /**
-     * Returns the decoded parameters parsed from the query component.
-     * @return array The decoded parameters parsed from the query
-     */
-    public function getQueryParameters()
-    {
-        parse_str(str_replace('+', '%2B', $this->getQuery()), $parameters);
-        return $parameters ? $parameters : [];
     }
 
     /**
@@ -150,6 +156,29 @@ trait ExtendedUriTrait
     }
 
     /**
+     * Returns the query string of the URI.
+     * @return string The URI query string
+     */
+    abstract public function getQuery();
+
+    /**
+     * Returns the decoded parameters parsed from the query component.
+     * @return array The decoded parameters parsed from the query
+     */
+    public function getQueryParameters()
+    {
+        parse_str(str_replace('+', '%2B', $this->getQuery()), $parameters);
+        return $parameters ? $parameters : [];
+    }
+
+    /**
+     * Returns a new URI instance with the specified path.
+     * @param string $path The path to use with the new instance
+     * @return self A new instance with the specified path
+     */
+    abstract public function withPath($path);
+
+    /**
      * Returns a new URI instance with path constructed from given path segments.
      *
      * Note that all the segments are assumed to be decoded. Thus any percent
@@ -158,16 +187,20 @@ trait ExtendedUriTrait
      * segments.
      *
      * @param string[] $segments Path segments for the new path
-     * @return Uri A new instance with the specified path
+     * @return self A new instance with the specified path
      */
     public function withPathSegments(array $segments)
     {
-        return $this->with(
-            'path',
+        return $this->withPath(
             implode('/', array_map('rawurlencode', array_filter($segments, 'strlen')))
         );
     }
 
+    /**
+     * Returns a new URI instance with the specified query string.
+     * @param string $query The query string to use with the new instance
+     * @return self A new instance with the specified query string
+     */
     abstract public function withQuery($query);
 
     /**
@@ -183,6 +216,6 @@ trait ExtendedUriTrait
      */
     public function withQueryParameters(array $parameters)
     {
-        return $this->with('query', http_build_query($parameters, '', '&', PHP_QUERY_RFC3986));
+        return $this->withQuery(http_build_query($parameters, '', '&', PHP_QUERY_RFC3986));
     }
 }
