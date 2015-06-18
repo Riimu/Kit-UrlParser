@@ -17,11 +17,8 @@ class Uri implements UriInterface
     /** @var string The scheme component of the URI */
     private $scheme = '';
 
-    /** @var string The username part of the user information component */
-    private $username = '';
-
-    /** @var string The password part of the user information component */
-    private $password = '';
+    /** @var string The user information component of the URI */
+    private $userInfo = '';
 
     /** @var string The host component of the URI */
     private $host = '';
@@ -104,7 +101,7 @@ class Uri implements UriInterface
             return $this->username . ':' . $this->password;
         }
 
-        return $this->username;
+        return $this->userInfo;
     }
 
     /**
@@ -215,15 +212,14 @@ class Uri implements UriInterface
      */
     public function withUserInfo($user, $password = null)
     {
-        $uri = clone $this;
-        $uri->username = rawurlencode($user);
+        $info = rawurlencode($user);
+        $password = rawurlencode($password);
 
-        if ($uri->username === '') {
-            $password = '';
+        if ($info !== '' && $password !== '') {
+            $info .= ':' . $password;
         }
 
-        $uri->password = rawurlencode($password);
-        return $uri;
+        return $this->with('userInfo', $info);
     }
 
     /**
