@@ -47,7 +47,7 @@ class UriPattern
 
     /**
      * Builds the PCRE patterns according to the RFC.
-     * @return string[] Patterns build for URL matching
+     * @return void
      */
     private static function buildPatterns()
     {

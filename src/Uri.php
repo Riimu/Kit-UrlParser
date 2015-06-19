@@ -361,20 +361,16 @@ class Uri implements UriInterface
     public function __toString()
     {
         $uri = '';
-        $components = [
-            ['%2$s:%1$s', $this->getScheme()],
-            ['%s//%s', $this->getAuthority()],
-            ['%s%s', $this->getNormalizedUriPath()],
-            ['%s?%s', $this->getQuery()],
-            ['%s#%s', $this->getFragment()]
-        ];
+        $components = array_filter([
+            '%2$s:%1$s' => $this->getScheme(),
+            '%s//%s'    => $this->getAuthority(),
+            '%s%s'      => $this->getNormalizedUriPath(),
+            '%s?%s'     => $this->getQuery(),
+            '%s#%s'     => $this->getFragment()
+        ], 'strlen');
 
-        foreach ($components as $definition) {
-            list($format, $component) = $definition;
-
-            if ($component !== '') {
-                $uri = sprintf($format, $uri, $component);
-            }
+        foreach ($components as $format => $component) {
+            $uri = sprintf($format, $uri, $component);
         }
 
         return $uri;
