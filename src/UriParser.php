@@ -24,6 +24,19 @@ namespace Riimu\Kit\UrlParser;
  */
 class UriParser
 {
+    /** @var string[] List of methods used to assign Uri components */
+    private static $mutators = [
+        'scheme'        => 'withScheme',
+        'host'          => 'withHost',
+        'port'          => 'withPort',
+        'path_abempty'  => 'withPath',
+        'path_absolute' => 'withPath',
+        'path_noscheme' => 'withPath',
+        'path_rootless' => 'withPath',
+        'query'         => 'withQuery',
+        'fragment'      => 'withFragment',
+    ];
+
     /**
      * Parses the URL using the generic syntax.
      *
@@ -59,23 +72,11 @@ class UriParser
      */
     private function buildUri(array $components)
     {
-        $parts = [
-            'scheme'        => 'withScheme',
-            'host'          => 'withHost',
-            'port'          => 'withPort',
-            'path_abempty'  => 'withPath',
-            'path_absolute' => 'withPath',
-            'path_noscheme' => 'withPath',
-            'path_rootless' => 'withPath',
-            'query'         => 'withQuery',
-            'fragment'      => 'withFragment',
-        ];
-
         $uri = new Uri();
         $components = array_filter($components, 'strlen');
 
-        foreach (array_intersect_key($components, $parts) as $key => $value) {
-            $uri = call_user_func([$uri, $parts[$key]], $value);
+        foreach (array_intersect_key($components, self::$mutators) as $key => $value) {
+            $uri = call_user_func([$uri, self::$mutators[$key]], $value);
         }
 
         if (isset($components['userinfo'])) {
