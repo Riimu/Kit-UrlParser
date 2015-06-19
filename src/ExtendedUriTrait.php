@@ -212,7 +212,7 @@ trait ExtendedUriTrait
      * encoded, since this method assumes that all the values are unencoded.
      *
      * @param array $parameters Parameters for the query
-     * @return Uri A new instance with the specified query string
+     * @return self A new instance with the specified query string
      */
     public function withQueryParameters(array $parameters)
     {

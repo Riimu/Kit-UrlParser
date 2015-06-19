@@ -181,7 +181,7 @@ class Uri implements UriInterface
      * that all provided hosts will be normalized to lowercase.
      *
      * @param string $scheme The scheme to use with the new instance
-     * @return Uri A new instance with the specified scheme
+     * @return self A new instance with the specified scheme
      * @throws \InvalidArgumentException If the scheme is invalid
      */
     public function withScheme($scheme)
@@ -206,7 +206,7 @@ class Uri implements UriInterface
      *
      * @param string $user The username to use for the authority component
      * @param string|null $password The password associated with the user
-     * @return Uri A new instance with the specified user information
+     * @return self A new instance with the specified user information
      */
     public function withUserInfo($user, $password = null)
     {
@@ -228,7 +228,7 @@ class Uri implements UriInterface
      * to lowercase.
      *
      * @param string $host The hostname to use with the new instance
-     * @return Uri A new instance with the specified host
+     * @return self A new instance with the specified host
      * @throws \InvalidArgumentException If the hostname is invalid.
      */
     public function withHost($host)
@@ -248,7 +248,7 @@ class Uri implements UriInterface
      * 65535), an exception will be thrown.
      *
      * @param int|null $port The port to use with the new instance
-     * @return Uri A new instance with the specified port
+     * @return self A new instance with the specified port
      * @throws \InvalidArgumentException If the port is invalid
      */
     public function withPort($port)
@@ -274,11 +274,11 @@ class Uri implements UriInterface
      * characters will not be double encoded.
      *
      * @param string $path The path to use with the new instance
-     * @return Uri A new instance with the specified path
+     * @return self A new instance with the specified path
      */
     public function withPath($path)
     {
-        return $this->with('path', $this->encode($path, true, '@/'));
+        return $this->with('path', $this->encode($path, '@/'));
     }
 
     /**
@@ -289,11 +289,11 @@ class Uri implements UriInterface
      * be double encoded in query.
      *
      * @param string $query The query string to use with the new instance
-     * @return Uri A new instance with the specified query string
+     * @return self A new instance with the specified query string
      */
     public function withQuery($query)
     {
-        return $this->with('query', $this->encode($query, true, ':@/?'));
+        return $this->with('query', $this->encode($query, ':@/?'));
     }
 
     /**
@@ -304,18 +304,18 @@ class Uri implements UriInterface
      * not be double encoded.
      *
      * @param string $fragment The fragment to use with the new instance
-     * @return Uri A new instance with the specified fragment
+     * @return self A new instance with the specified fragment
      */
     public function withFragment($fragment)
     {
-        return $this->with('fragment', $this->encode($fragment, true, ':@/?'));
+        return $this->with('fragment', $this->encode($fragment, ':@/?'));
     }
 
     /**
      * Returns a new instance with the given value, or the same instance if the value is the same.
      * @param string $variable Name of the variable to change
      * @param mixed $value New value for the variable
-     * @return Uri A new instance or the same instance
+     * @return self A new instance or the same instance
      */
     private function with($variable, $value)
     {
@@ -331,21 +331,17 @@ class Uri implements UriInterface
     /**
      * Percent encodes the value without double encoding.
      * @param string $string The value to encode
-     * @param bool $allowSubDelimiters Whether to allow sub delimiters in the value
      * @param string $extra Additional allowed characters in the value
      * @return string The encoded string
      */
-    private function encode($string, $allowSubDelimiters = false, $extra = '')
+    private function encode($string, $extra = '')
     {
-        $normalized = preg_replace_callback('/%([a-f][0-9a-fA-F]|[0-9a-fA-F][a-f])/', function ($match) {
-            return '%' . strtoupper($match[1]);
+        $normalized = preg_replace_callback('/%[0-9a-fA-F]{2}/', function ($match) {
+            return strtoupper($match[0]);
         }, (string) $string);
 
-        if ($allowSubDelimiters) {
-            $extra .= "!$&'()*+,;=";
-        }
-
-        $pattern = sprintf('/[^%%A-Za-z0-9\\-._~%s]|%%(?![0-9a-fA-F]{2})/', preg_quote($extra, '/'));
+        $chars = '%' . '-._~' . "!$&'()*+,;=" . $extra;
+        $pattern = sprintf('/[^0-9a-zA-Z%s]|%%(?![0-9A-F]{2})/', preg_quote($chars, '/'));
 
         return preg_replace_callback($pattern, function ($match) {
             return sprintf('%%%02X', ord($match[0]));

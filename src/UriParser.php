@@ -62,23 +62,24 @@ class UriParser
             'scheme'        => 'withScheme',
             'host'          => 'withHost',
             'port'          => 'withPort',
-            'path-abempty'  => 'withPath',
-            'path-absolute' => 'withPath',
-            'path-noscheme' => 'withPath',
-            'path-rootless' => 'withPath',
+            'path_abempty'  => 'withPath',
+            'path_absolute' => 'withPath',
+            'path_noscheme' => 'withPath',
+            'path_rootless' => 'withPath',
             'query'         => 'withQuery',
             'fragment'      => 'withFragment',
         ];
 
         $uri = new Uri();
+        $components = array_filter($components, 'strlen');
 
-        foreach (array_filter($components, 'strlen') as $key => $value) {
-            if (isset($parts[$key])) {
-                $uri = call_user_func([$uri, $parts[$key]], $value);
-            } elseif ($key === 'userinfo') {
-                list($username, $password) = preg_split('/:|$/', $value, 2);
-                $uri = $uri->withUserInfo(rawurldecode($username), rawurldecode($password));
-            }
+        if (isset($components['userinfo'])) {
+            list($username, $password) = preg_split('/:|$/', $components['userinfo'], 2);
+            $uri = $uri->withUserInfo(rawurldecode($username), rawurldecode($password));
+        }
+
+        foreach (array_intersect_key($components, $parts) as $key => $value) {
+            $uri = call_user_func([$uri, $parts[$key]], $value);
         }
 
         return $uri;

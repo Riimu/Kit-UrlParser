@@ -42,6 +42,9 @@ class UriTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('#fragment', (string) (new Uri())->withFragment('fragment'));
     }
 
+    /**
+     * @return Uri
+     */
     public function testCompleteUri()
     {
         $uri = (new Uri())
@@ -57,6 +60,26 @@ class UriTest extends \PHPUnit_Framework_TestCase
             'http://user:pass@www.example.com:8080/path/to/file.html?foo=bar#fragment',
             (string) $uri
         );
+
+        return $uri;
+    }
+
+    /**
+     * @param Uri $uri
+     * @depends testCompleteUri
+     */
+    public function testRemovingComponents(Uri $uri)
+    {
+        $uri = $uri
+            ->withScheme('')
+            ->withUserInfo('')
+            ->withHost('')
+            ->withPort(null)
+            ->withPath('')
+            ->withQuery('')
+            ->withFragment('');
+
+        $this->assertSame('', (string) $uri);
     }
 
     public function testUserInfoEncoding()
