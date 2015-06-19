@@ -74,13 +74,13 @@ class UriParser
         $uri = new Uri();
         $components = array_filter($components, 'strlen');
 
-        if (isset($components['userinfo'])) {
-            list($username, $password) = preg_split('/:|$/', $components['userinfo'], 2);
-            $uri = $uri->withUserInfo(rawurldecode($username), rawurldecode($password));
-        }
-
         foreach (array_intersect_key($components, $parts) as $key => $value) {
             $uri = call_user_func([$uri, $parts[$key]], $value);
+        }
+
+        if (isset($components['userinfo'])) {
+            list($username, $password) = preg_split('/:|$/', $components['userinfo'], 2);
+            return $uri->withUserInfo(rawurldecode($username), rawurldecode($password));
         }
 
         return $uri;
