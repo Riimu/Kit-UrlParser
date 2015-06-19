@@ -12,9 +12,10 @@ namespace Riimu\Kit\UrlParser;
  * mean that other applications always produce URLs that are valid according to
  * the specification.
  *
- * While this library is intended to be useful for parsing URLs that identify
+ * While this library is intended to be useful for parsing URLs that locate
  * internet resources, it is possible to parse any kind of URIs using this parser,
- * since the parser simply parses the URLs using the generic URI syntax.
+ * since the parser simply parses the URLs using the generic URI syntax. Hence,
+ * the name UriParser.
  *
  * @see https://tools.ietf.org/html/rfc3986
  * @author Riikka Kalliomäki <riikka.kalliomaki@gmail.com>

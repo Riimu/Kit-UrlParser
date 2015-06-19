@@ -8,7 +8,7 @@ namespace Riimu\Kit\UrlParser;
  * @copyright Copyright (c) 2015, Riikka Kalliomäki
  * @license http://opensource.org/licenses/mit-license.php MIT License
  */
-trait ExtendedUriTrait
+trait UriExtendedTrait
 {
     /** @var int[] List of known ports for different schemes */
     private static $standardPorts = [
