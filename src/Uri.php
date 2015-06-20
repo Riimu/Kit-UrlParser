@@ -351,8 +351,9 @@ class Uri implements UriInterface
      */
     private function normalize($string)
     {
-        preg_match_all('/%(?=.?[a-f])[0-9a-fA-F]{2}/', $string, $match);
-        return strtr($string, array_combine($match[0], array_map('strtoupper', $match[0])));
+        return preg_replace_callback('/%(?=.?[a-f])[0-9a-fA-F]{2}/', function ($match) {
+            return strtoupper($match[0]);
+        }, $string);
     }
 
     /**
@@ -391,14 +392,12 @@ class Uri implements UriInterface
     {
         $path = $this->getPath();
 
-        if ($path === '') {
-            return '';
-        } elseif ($this->getAuthority() === '') {
+        if ($this->getAuthority() === '') {
             return preg_replace('#^/+#', '/', $path);
-        } elseif (substr($path, 0, 1) !== '/') {
-            return '/' . $path;
+        } elseif (in_array(substr($path, 0, 1), [false, '/'], true)) {
+            return $path;
         }
 
-        return $path;
+        return '/' . $path;
     }
 }
