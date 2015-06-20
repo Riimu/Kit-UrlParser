@@ -4,11 +4,16 @@ namespace Riimu\Kit\UrlParser;
 
 /**
  * Provides convenience methods for accessing the standard URI interface.
+ *
+ * UriAccessorTrait provides additional methods for common use cases, that build
+ * on top the standard URI interface. Note that due to RFC 3986 compliance, the
+ * methods do not treat the plus sign as a space character.
+ *
  * @author Riikka Kalliomäki <riikka.kalliomaki@gmail.com>
  * @copyright Copyright (c) 2015, Riikka Kalliomäki
  * @license http://opensource.org/licenses/mit-license.php MIT License
  */
-trait UriExtendedTrait
+trait UriAccessorTrait
 {
     /** @var int[] List of known ports for different schemes */
     private static $standardPorts = [
@@ -64,7 +69,7 @@ trait UriExtendedTrait
 
     /**
      * Returns the decoded password from the URI.
-     * @return string the decoded password
+     * @return string The decoded password
      */
     public function getPassword()
     {
@@ -74,7 +79,7 @@ trait UriExtendedTrait
     }
 
     /**
-     * Retrieve the host component of the URI.
+     * Returns the host component of the URI.
      * @return string The URI host
      */
     abstract public function getHost();

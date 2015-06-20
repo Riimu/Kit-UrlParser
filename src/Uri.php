@@ -12,7 +12,7 @@ use Psr\Http\Message\UriInterface;
  */
 class Uri implements UriInterface
 {
-    use UriExtendedTrait;
+    use UriAccessorTrait;
 
     /** @var string The scheme component of the URI */
     private $scheme = '';
@@ -23,7 +23,7 @@ class Uri implements UriInterface
     /** @var string The host component of the URI */
     private $host = '';
 
-    /** @var int|null The port for the authority component or null for none */
+    /** @var int|null The port component of the URI or null for none */
     private $port = null;
 
     /** @var string The path component of the URI */
@@ -99,7 +99,7 @@ class Uri implements UriInterface
     }
 
     /**
-     * Retrieve the host component of the URI.
+     * Returns the host component of the URI.
      *
      * Note that the returned value will always be normalized to lowercase,
      * as per RFC 3986 Section 3.2.2. If no host has been provided, an empty
@@ -234,7 +234,7 @@ class Uri implements UriInterface
     public function withHost($host)
     {
         if (preg_match(UriPattern::getHostPattern(), $host)) {
-            return $this->with('host', strtolower($host));
+            return $this->with('host', $this->normalize(strtolower($host)));
         }
 
         throw new \InvalidArgumentException("Invalid host '$host'");
@@ -336,16 +336,23 @@ class Uri implements UriInterface
      */
     private function encode($string, $extra = '')
     {
-        $normalized = preg_replace_callback('/%[0-9a-fA-F]{2}/', function ($match) {
-            return strtoupper($match[0]);
-        }, (string) $string);
-
         $chars = '%' . '-._~' . "!$&'()*+,;=" . $extra;
         $pattern = sprintf('/[^0-9a-zA-Z%s]|%%(?![0-9A-F]{2})/', preg_quote($chars, '/'));
 
         return preg_replace_callback($pattern, function ($match) {
             return sprintf('%%%02X', ord($match[0]));
-        }, $normalized);
+        }, $this->normalize($string));
+    }
+
+    /**
+     * Normalizes the percent encoded characters to upper case
+     * @param string $string The string to normalize
+     * @return string String with percent encodings normalized to upper case
+     */
+    private function normalize($string)
+    {
+        preg_match_all('/%(?=.?[a-f])[0-9a-fA-F]{2}/', $string, $match);
+        return strtr($string, array_combine($match[0], array_map('strtoupper', $match[0])));
     }
 
     /**

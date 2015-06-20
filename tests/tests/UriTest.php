@@ -217,4 +217,9 @@ class UriTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('//www.example.com:80', (string) $uri);
         $this->assertSame('http://www.example.com', (string) $uri->withScheme('http'));
     }
+
+    public function testHostCaseNormalization()
+    {
+        $this->assertSame('foo%BAr', (new Uri())->withHost('Foo%BaR')->getHost());
+    }
 }
