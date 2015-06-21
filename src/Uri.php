@@ -368,36 +368,29 @@ class Uri implements UriInterface
      */
     public function __toString()
     {
-        $uri = '';
+        $authority = $this->getAuthority();
+        $path = $this->getPath();
+
+        if ($authority === '') {
+            $path = preg_replace('#^/+#', '/', $path);
+        } elseif (!in_array(substr($path, 0, 1), [false, '/'], true)) {
+            $path = '/' . $path;
+        }
+
         $components = array_filter([
             '%2$s:%1$s' => $this->getScheme(),
-            '%s//%s'    => $this->getAuthority(),
-            '%s%s'      => $this->getNormalizedUriPath(),
+            '%s//%s'    => $authority,
+            '%s%s'      => $path,
             '%s?%s'     => $this->getQuery(),
             '%s#%s'     => $this->getFragment()
         ], 'strlen');
+
+        $uri = '';
 
         foreach ($components as $format => $component) {
             $uri = sprintf($format, $uri, $component);
         }
 
         return $uri;
-    }
-
-    /**
-     * Returns the path normalized for the string URI representation.
-     * @return string The normalized path for the string representation
-     */
-    private function getNormalizedUriPath()
-    {
-        $path = $this->getPath();
-
-        if ($this->getAuthority() === '') {
-            return preg_replace('#^/+#', '/', $path);
-        } elseif (in_array(substr($path, 0, 1), [false, '/'], true)) {
-            return $path;
-        }
-
-        return '/' . $path;
     }
 }
