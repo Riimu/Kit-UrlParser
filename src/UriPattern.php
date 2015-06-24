@@ -62,11 +62,11 @@ class UriPattern
         $delimiters = "!$&'()*+,;=";
 
         $octet = "(?:[$digit]|[1-9][$digit]|1[$digit]{2}|2[0-4]$digit|25[0-5])";
-        $IPv4address = "(?>$octet\\.$octet\\.$octet\\.$octet)";
+        $ipv4address = "(?>$octet\\.$octet\\.$octet\\.$octet)";
 
         $encoded = "%[$hex]{2}";
         $h16 = "[$hex]{1,4}";
-        $ls32 = "(?:$h16:$h16|$IPv4address)";
+        $ls32 = "(?:$h16:$h16|$ipv4address)";
 
         $data = "[$unreserved$delimiters:@]++|$encoded";
 
@@ -74,7 +74,7 @@ class UriPattern
         $scheme = "(?'scheme'(?>[$alpha][$alpha$digit+\\-.]*+))";
 
         // Defining the authority
-        $IPv6address = "(?'IPv6address'" .
+        $ipv6address = "(?'IPv6address'" .
             "(?:(?:$h16:){6}$ls32)|" .
             "(?:::(?:$h16:){5}$ls32)|" .
             "(?:(?:$h16)?::(?:$h16:){4}$ls32)|" .
@@ -87,11 +87,11 @@ class UriPattern
 
         $regularName = "(?'reg_name'(?>(?:[$unreserved$delimiters]++|$encoded)*))";
 
-        $IPvFuture = "(?'IPvFuture'v[$hex]++\\.[$unreserved$delimiters:]++)";
-        $IPLiteral = "(?'IP_literal'\\[(?>$IPv6address|$IPvFuture)\\])";
+        $ipvFuture = "(?'IPvFuture'v[$hex]++\\.[$unreserved$delimiters:]++)";
+        $ipLiteral = "(?'IP_literal'\\[(?>$ipv6address|$ipvFuture)\\])";
 
         $port = "(?'port'(?>[$digit]*+))";
-        $host = "(?'host'$IPLiteral|(?'IPv4address'$IPv4address)|$regularName)";
+        $host = "(?'host'$ipLiteral|(?'IPv4address'$ipv4address)|$regularName)";
         $userInfo = "(?'userinfo'(?>(?:[$unreserved$delimiters:]++|$encoded)*))";
         $authority = "(?'authority'(?:$userInfo@)?$host(?::$port)?)";
 
