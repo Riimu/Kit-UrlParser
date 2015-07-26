@@ -178,7 +178,7 @@ class Uri implements UriInterface
      * This method allows all different kinds of schemes. Note, however,
      * the different components are only validated based on the generic
      * URI syntax. An empty string can be used to remove the scheme. Note
-     * that all provided hosts will be normalized to lowercase.
+     * that the provided scheme will be normalized to lower case.
      *
      * @param string $scheme The scheme to use with the new instance
      * @return self A new instance with the specified scheme
@@ -336,8 +336,10 @@ class Uri implements UriInterface
      */
     private function encode($string, $extra = '')
     {
-        $chars = '%' . '-._~' . "!$&'()*+,;=" . $extra;
-        $pattern = sprintf('/[^0-9a-zA-Z%s]|%%(?![0-9A-F]{2})/', preg_quote($chars, '/'));
+        $pattern = sprintf(
+            '/[^0-9a-zA-Z%s]|%%(?![0-9A-F]{2})/',
+            preg_quote("%-._~!$&'()*+,;=$extra", '/')
+        );
 
         return preg_replace_callback($pattern, function ($match) {
             return sprintf('%%%02X', ord($match[0]));
@@ -351,9 +353,13 @@ class Uri implements UriInterface
      */
     private function normalize($string)
     {
-        return preg_replace_callback('/%(?=.?[a-f])[0-9a-fA-F]{2}/', function ($match) {
-            return strtoupper($match[0]);
-        }, $string);
+        return preg_replace_callback(
+            '/%(?=.?[a-f])[0-9a-fA-F]{2}/',
+            function ($match) {
+                return strtoupper($match[0]);
+            },
+            $string
+        );
     }
 
     /**
