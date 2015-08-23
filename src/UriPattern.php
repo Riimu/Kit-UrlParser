@@ -3,6 +3,7 @@
 namespace Riimu\Kit\UrlParser;
 
 /**
+ * Provides PCRE based matching for URIs.
  * @author Riikka Kalliomäki <riikka.kalliomaki@gmail.com>
  * @copyright Copyright (c) 2015, Riikka Kalliomäki
  * @license http://opensource.org/licenses/mit-license.php MIT License
@@ -21,40 +22,89 @@ class UriPattern
     /** @var string PCRE pattern that conforms to the host ABNF */
     private static $host;
 
-    public static function getAbsoluteUriPattern()
+    /**
+     * Creates a new instance of UriPattern.
+     */
+    public function __construct()
     {
-        self::buildPatterns();
-        return self::$absoluteUri;
-    }
-
-    public static function getRelativeUriPattern()
-    {
-        self::buildPatterns();
-        return self::$relativeUri;
-    }
-
-    public static function getSchemePattern()
-    {
-        self::buildPatterns();
-        return self::$scheme;
-    }
-
-    public static function getHostPattern()
-    {
-        self::buildPatterns();
-        return self::$host;
+        if (!isset(self::$absoluteUri)) {
+            $this->buildPatterns();
+        }
     }
 
     /**
-     * Builds the PCRE patterns according to the RFC.
-     * @return void
+     * Matches the URI against the URI ABNF.
+     * @param string $uri The URI to match
+     * @param array $matches Provides the matched sub sections from the match
+     * @return bool True if the URI matches, false if not
+     */
+    public function matchAbsoluteUri($uri, & $matches = [])
+    {
+        return $this->match(self::$absoluteUri, $uri, $matches);
+    }
+
+    /**
+     * Matches the URI against the relative-ref ABNF.
+     * @param string $uri The URI to match
+     * @param array $matches Provides the matched sub sections from the match
+     * @return bool True if the URI matches, false if not
+     */
+    public function matchRelativeUri($uri, & $matches = [])
+    {
+        return $this->match(self::$relativeUri, $uri, $matches);
+    }
+
+    /**
+     * Matches the scheme against the scheme ABNF.
+     * @param string $scheme The scheme to match
+     * @param array $matches Provides the matched sub sections from the match
+     * @return bool True if the scheme matches, false if not
+     */
+    public function matchScheme($scheme, & $matches = [])
+    {
+        return $this->match(self::$scheme, $scheme, $matches);
+    }
+
+    /**
+     * Matches the host against the host ABNF.
+     * @param string $host The host to match
+     * @param array $matches Provides the matched sub sections from the match
+     * @return bool True if the scheme matches, false if not
+     */
+    public function matchHost($host, & $matches = [])
+    {
+        return $this->match(self::$host, $host, $matches);
+    }
+
+    /**
+     * Matches the subject against the pattern and provides the literal sub patterns.
+     * @param string $pattern The pattern to use for matching
+     * @param string $subject The subject to match
+     * @param array $matches The provided list of literal sub patterns
+     * @return bool True if the pattern matches, false if not
+     */
+    private function match($pattern, $subject, & $matches)
+    {
+        $matches = [];
+
+        if (preg_match($pattern, $subject, $match) === 1) {
+            foreach ($match as $key => $value) {
+                if (is_string($key) && strlen($value) > 0) {
+                    $matches[$key] = $value;
+                }
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Builds the PCRE patterns according to the ABNF definitions.
      */
     private static function buildPatterns()
     {
-        if (isset(self::$absoluteUri)) {
-            return;
-        }
-
         $alpha = 'A-Za-z';
         $digit = '0-9';
         $hex = $digit . 'A-Fa-f';

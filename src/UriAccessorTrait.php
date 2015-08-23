@@ -90,11 +90,12 @@ trait UriAccessorTrait
      */
     public function getIpAddress()
     {
-        preg_match(UriPattern::getHostPattern(), $this->getHost(), $match);
+        $pattern = new UriPattern();
+        $pattern->matchHost($this->getHost(), $match);
 
-        if (!empty($match['IPv4address'])) {
+        if (isset($match['IPv4address'])) {
             return $match['IPv4address'];
-        } elseif (!empty($match['IP_literal'])) {
+        } elseif (isset($match['IP_literal'])) {
             return preg_replace('/^\\[(v[^.]+\\.)?([^\\]]+)\\]$/', '$2', $match['IP_literal']);
         }
 

@@ -187,8 +187,9 @@ class Uri implements UriInterface
     public function withScheme($scheme)
     {
         $scheme = strtolower($scheme);
+        $pattern = new UriPattern();
 
-        if ($scheme === '' || preg_match(UriPattern::getSchemePattern(), $scheme)) {
+        if ($scheme === '' || $pattern->matchScheme($scheme)) {
             return $this->with('scheme', $scheme);
         }
 
@@ -233,7 +234,9 @@ class Uri implements UriInterface
      */
     public function withHost($host)
     {
-        if (preg_match(UriPattern::getHostPattern(), $host)) {
+        $pattern = new UriPattern();
+
+        if ($pattern->matchHost($host)) {
             return $this->with('host', $this->normalize(strtolower($host)));
         }
 

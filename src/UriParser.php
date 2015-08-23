@@ -5,17 +5,18 @@ namespace Riimu\Kit\UrlParser;
 /**
  * Provides a RFC 3986 compliant solution to URL parsing.
  *
- * UriParser provides URL parsing method that accurately complies with the
+ * UriParser provides a URL parsing method that accurately complies with the
  * specification. Unlike the built in function `parse_url()`, this library will
- * not parse incomplete or invalid URLs in attempt to at least provide some
- * information. While this library should parse all valid URLs, it does not
- * mean that other applications always produce URLs that are valid according to
- * the specification.
+ * parse the URLs using a regular expression that has been built based on the
+ * ABNF definition of the generic URI syntax. In other words, this library does
+ * not allow any kind of invalid URLs and parses them exactly as defined in the
+ * specification.
  *
- * While this library is intended to be useful for parsing URLs that locate
- * internet resources, it is possible to parse any kind of URIs using this parser,
- * since the parser simply parses the URLs using the generic URI syntax. Hence,
- * the name UriParser.
+ * While the intention of this library is to provide an accurate implementation
+ * of URL parsing, by employing the generic URI syntax, this library can be used
+ * to parse any kind of URIs. The parser, however, will only validate that the
+ * provided URI matches the generic URI syntax and it will not perform any
+ * additional validation based on the scheme.
  *
  * @see https://tools.ietf.org/html/rfc3986
  * @author Riikka Kalliomäki <riikka.kalliomaki@gmail.com>
@@ -24,7 +25,7 @@ namespace Riimu\Kit\UrlParser;
  */
 class UriParser
 {
-    /** @var string[] List of methods used to assign Uri components */
+    /** @var array<string,string> List of methods used to assign the URI components */
     private static $mutators = [
         'scheme'        => 'withScheme',
         'host'          => 'withHost',
@@ -38,7 +39,7 @@ class UriParser
     ];
 
     /**
-     * Parses the URL using the generic syntax.
+     * Parses the URL using the generic URI syntax.
      *
      * Please note that the provided URL is parsed using either the absolute URI
      * specification or the relative URI specification (depending on which matches).
@@ -56,9 +57,11 @@ class UriParser
      */
     public function parse($uri)
     {
-        if (preg_match(UriPattern::getAbsoluteUriPattern(), $uri, $match)) {
+        $pattern = new UriPattern();
+
+        if ($pattern->matchAbsoluteUri($uri, $match)) {
             return $this->buildUri($match);
-        } elseif (preg_match(UriPattern::getRelativeUriPattern(), $uri, $match)) {
+        } elseif ($pattern->matchRelativeUri($uri, $match)) {
             return $this->buildUri($match);
         }
 
