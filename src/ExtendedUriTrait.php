@@ -5,7 +5,7 @@ namespace Riimu\Kit\UrlParser;
 /**
  * Provides convenience methods for accessing the standard URI interface.
  *
- * UriAccessorTrait provides additional methods for common use cases, that build
+ * ExtendedUriTrait provides additional methods for common use cases that build
  * on top the standard URI interface. Note that due to RFC 3986 compliance, the
  * methods do not treat the plus sign as a space character.
  *
@@ -141,7 +141,10 @@ trait ExtendedUriTrait
      */
     public function getPathSegments()
     {
-        return array_map('rawurldecode', array_filter(explode('/', $this->getPath()), 'strlen'));
+        return array_map(
+            'rawurldecode',
+            array_filter(explode('/', $this->getPath()), 'strlen')
+        );
     }
 
     /**

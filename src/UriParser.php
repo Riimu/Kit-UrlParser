@@ -13,9 +13,9 @@ namespace Riimu\Kit\UrlParser;
  * specification.
  *
  * While the intention of this library is to provide an accurate implementation
- * of URL parsing, by employing the generic URI syntax, this library can be used
- * to parse any kind of URIs. The parser, however, will only validate that the
- * provided URI matches the generic URI syntax and it will not perform any
+ * for URL parsing, by employing the generic URI syntax, this library can be
+ * used to parse any kind of URIs. The parser, however, will only validate that
+ * the provided URI matches the generic URI syntax and it will not perform any
  * additional validation based on the scheme.
  *
  * @see https://tools.ietf.org/html/rfc3986
@@ -41,16 +41,11 @@ class UriParser
     /**
      * Parses the URL using the generic URI syntax.
      *
-     * Please note that the provided URL is parsed using either the absolute URI
-     * specification or the relative URI specification (depending on which matches).
-     * Thus, the method is quite permissive in what you can provide. However, the
-     * results may not be what you expect, since this is intended for parsing
-     * complete and valid URLs.
-     *
-     * For example, simply passing 'www.example.com' would parse it as a relative
-     * URI with the path 'www.example.com' instead of having that as the host.
-     * The string would need to be entered as 'http://www.example.com', for example,
-     * if you want to domain to be correctly parsed as the host.
+     * This method returns the `Uri` instance constructed from the components
+     * parsed from the URL. The URL is parsed using either the absolute URI
+     * pattern or the relative URI pattern based on which one matches the
+     * provided string. If the URL cannot be parsed as a valid URI, null is
+     * returned instead.
      *
      * @param string $uri The URL to parse
      * @return Uri|null The parsed URL or null if the URL is invalid
@@ -69,9 +64,9 @@ class UriParser
     }
 
     /**
-     * Builds the URL object from the parsed components.
-     * @param array<string, string> $components Components parsed from the URL
-     * @return Uri The generated URL representation
+     * Builds the Uri instance from the parsed components.
+     * @param array<string, string> $components Components parsed from the URI
+     * @return Uri The constructed URI representation
      */
     private function buildUri(array $components)
     {

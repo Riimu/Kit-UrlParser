@@ -5,7 +5,7 @@ namespace Riimu\Kit\UrlParser;
 use Psr\Http\Message\UriInterface;
 
 /**
- * Immutable URI value object that also provides methods for manipulation.
+ * Immutable URI value object for modifying and retrieving URI components.
  * @author Riikka Kalliomäki <riikka.kalliomaki@gmail.com>
  * @copyright Copyright (c) 2015, Riikka Kalliomäki
  * @license http://opensource.org/licenses/mit-license.php MIT License
@@ -178,7 +178,7 @@ class Uri implements UriInterface
      * This method allows all different kinds of schemes. Note, however,
      * the different components are only validated based on the generic
      * URI syntax. An empty string can be used to remove the scheme. Note
-     * that all provided scheme will be normalized to lowercase.
+     * that the provided scheme will be normalized to lowercase.
      *
      * @param string $scheme The scheme to use with the new instance
      * @return self A new instance with the specified scheme
@@ -287,9 +287,9 @@ class Uri implements UriInterface
     /**
      * Returns a new URI instance with the specified query string.
      *
-     * An empty string can be used to remove the query. The provided value may
-     * contain both encoded and decoded characters. Encoded characters will not
-     * be double encoded in query.
+     * An empty string can be used to remove the query string. The provided
+     * value may contain both encoded and decoded characters. Encoded characters
+     * will not be double encoded.
      *
      * @param string $query The query string to use with the new instance
      * @return self A new instance with the specified query string
@@ -315,10 +315,10 @@ class Uri implements UriInterface
     }
 
     /**
-     * Returns a new instance with the given value, or the same instance if the value is the same.
+     * Returns an Uri instance with the given value.
      * @param string $variable Name of the variable to change
      * @param mixed $value New value for the variable
-     * @return self A new instance or the same instance
+     * @return self A new instance or the same instance, if the value did not change
      */
     private function with($variable, $value)
     {
@@ -396,7 +396,7 @@ class Uri implements UriInterface
     }
 
     /**
-     * Returns the path normalized for the string URI representation.
+     * Returns the path normalized for the string representation.
      * @return string The normalized path for the string representation
      */
     private function getNormalizedUriPath()
