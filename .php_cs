@@ -20,6 +20,7 @@ return Symfony\CS\Config\Config::create()
         'strict_param',
 
         '-concat_without_spaces',
+        '-empty_return',
         '-linefeed',
         '-phpdoc_no_empty_return',
         '-phpdoc_params',

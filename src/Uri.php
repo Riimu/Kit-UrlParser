@@ -328,6 +328,7 @@ class Uri implements UriInterface
 
         $uri = clone $this;
         $uri->$variable = $value;
+
         return $uri;
     }
 
@@ -348,7 +349,7 @@ class Uri implements UriInterface
     }
 
     /**
-     * Normalizes the percent encoded characters to upper case
+     * Normalizes the percent encoded characters to upper case.
      * @param string $string The string to normalize
      * @return string String with percent encodings normalized to upper case
      */
@@ -376,7 +377,7 @@ class Uri implements UriInterface
             '%s//%s'    => $this->getAuthority(),
             '%s%s'      => $this->getNormalizedUriPath(),
             '%s?%s'     => $this->getQuery(),
-            '%s#%s'     => $this->getFragment()
+            '%s#%s'     => $this->getFragment(),
         ], 'strlen');
 
         $uri = '';

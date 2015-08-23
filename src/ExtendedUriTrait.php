@@ -174,6 +174,7 @@ trait ExtendedUriTrait
     public function getQueryParameters()
     {
         parse_str(str_replace('+', '%2B', $this->getQuery()), $parameters);
+
         return $parameters ? $parameters : [];
     }
 

@@ -165,7 +165,7 @@ class UriPattern
 
         self::$absoluteUri = "#^$scheme:$absolutePath(?:\\?$query)?(?:\\#$fragment)?$#";
         self::$relativeUri = "#^$relativePath(?:\\?$query)?(?:\\#$fragment)?$#";
-        self::$scheme      = "#^$scheme$#";
-        self::$host        = "#^$host$#";
+        self::$scheme = "#^$scheme$#";
+        self::$host = "#^$host$#";
     }
 }
