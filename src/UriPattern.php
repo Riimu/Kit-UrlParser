@@ -33,8 +33,8 @@ class UriPattern
     }
 
     /**
-     * Matches the URI against the URI ABNF.
-     * @param string $uri The URI to match
+     * Matches the string against the URI ABNF.
+     * @param string $uri The string to match
      * @param array $matches Provides the matched sub sections from the match
      * @return bool True if the URI matches, false if not
      */
@@ -44,8 +44,8 @@ class UriPattern
     }
 
     /**
-     * Matches the URI against the relative-ref ABNF.
-     * @param string $uri The URI to match
+     * Matches the string against the relative-ref ABNF.
+     * @param string $uri The string to match
      * @param array $matches Provides the matched sub sections from the match
      * @return bool True if the URI matches, false if not
      */
@@ -55,8 +55,8 @@ class UriPattern
     }
 
     /**
-     * Matches the scheme against the scheme ABNF.
-     * @param string $scheme The scheme to match
+     * Matches the string against the scheme ABNF.
+     * @param string $scheme The string to match
      * @param array $matches Provides the matched sub sections from the match
      * @return bool True if the scheme matches, false if not
      */
@@ -66,8 +66,8 @@ class UriPattern
     }
 
     /**
-     * Matches the host against the host ABNF.
-     * @param string $host The host to match
+     * Matches the string against the host ABNF.
+     * @param string $host The string to match
      * @param array $matches Provides the matched sub sections from the match
      * @return bool True if the scheme matches, false if not
      */

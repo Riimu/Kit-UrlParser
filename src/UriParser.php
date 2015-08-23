@@ -70,7 +70,7 @@ class UriParser
 
     /**
      * Builds the URL object from the parsed components.
-     * @param string[] $components Components parsed from the URL
+     * @param array<string, string> $components Components parsed from the URL
      * @return Uri The generated URL representation
      */
     private function buildUri(array $components)

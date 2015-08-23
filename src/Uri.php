@@ -342,7 +342,7 @@ class Uri implements UriInterface
     {
         $pattern = sprintf(
             '/[^0-9a-zA-Z%s]|%%(?![0-9A-F]{2})/',
-            preg_quote("%-._~!$&'()*+,;=$extra", '/')
+            preg_quote('%-._~!$&\'()*+,;=' . $extra, '/')
         );
 
         return preg_replace_callback($pattern, function ($match) {
