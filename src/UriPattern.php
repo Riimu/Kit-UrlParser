@@ -88,11 +88,9 @@ class UriPattern
         $matches = [];
 
         if (preg_match($pattern, (string) $subject, $match) === 1) {
-            foreach ($match as $key => $value) {
-                if (is_string($key) && strlen($value) > 0) {
-                    $matches[$key] = $value;
-                }
-            }
+            $keys = array_filter(array_keys($match), 'is_string');
+            $literal = array_intersect_key($match, array_flip($keys));
+            $matches = array_filter($literal, 'strlen');
 
             return true;
         }

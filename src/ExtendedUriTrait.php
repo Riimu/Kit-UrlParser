@@ -181,7 +181,7 @@ trait ExtendedUriTrait
     /**
      * Returns a new URI instance with the specified path.
      * @param string $path The path to use with the new instance
-     * @return ExtendedUriTrait A new instance with the specified path
+     * @return self A new instance with the specified path
      */
     abstract public function withPath($path);
 
@@ -194,7 +194,7 @@ trait ExtendedUriTrait
      * segments.
      *
      * @param string[] $segments Path segments for the new path
-     * @return ExtendedUriTrait A new instance with the specified path
+     * @return self A new instance with the specified path
      */
     public function withPathSegments(array $segments)
     {
@@ -206,7 +206,7 @@ trait ExtendedUriTrait
     /**
      * Returns a new URI instance with the specified query string.
      * @param string $query The query string to use with the new instance
-     * @return ExtendedUriTrait A new instance with the specified query string
+     * @return self A new instance with the specified query string
      */
     abstract public function withQuery($query);
 
@@ -219,7 +219,7 @@ trait ExtendedUriTrait
      * encoded, since this method assumes that all the values are unencoded.
      *
      * @param array $parameters Parameters for the query
-     * @return ExtendedUriTrait A new instance with the specified query string
+     * @return self A new instance with the specified query string
      */
     public function withQueryParameters(array $parameters)
     {
