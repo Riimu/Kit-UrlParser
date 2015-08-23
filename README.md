@@ -19,8 +19,8 @@ The API documentation, which can be generated using Apigen, can be read online
 at: http://kit.riimu.net/api/urlparser/
 
 [![Build Status](https://img.shields.io/travis/Riimu/Kit-UrlParser.svg?style=flat)](https://travis-ci.org/Riimu/Kit-UrlParser)
-[![Coverage Status](https://img.shields.io/coveralls/Riimu/Kit-UrlParser.svg?style=flat)](https://coveralls.io/r/Riimu/Kit-UrlParser?branch=master)
-[![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/Riimu/Kit-UrlParser.svg?style=flat)](https://scrutinizer-ci.com/g/Riimu/Kit-UrlParser/?branch=master)
+[![Code Coverage](https://img.shields.io/scrutinizer/coverage/g/Riimu/Kit-UrlParser.svg?style=flat)](https://scrutinizer-ci.com/g/Riimu/Kit-UrlParser/)
+[![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/Riimu/Kit-UrlParser.svg?style=flat)](https://scrutinizer-ci.com/g/Riimu/Kit-UrlParser/)
 
 ## Requirements ##
 

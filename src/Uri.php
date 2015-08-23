@@ -67,19 +67,10 @@ class Uri implements UriInterface
      */
     public function getAuthority()
     {
-        $authority = $this->getHost();
-        $userInfo = $this->getUserInfo();
-        $port = $this->getPort();
-
-        if ($userInfo !== '') {
-            $authority = $userInfo . '@' . $authority;
-        }
-
-        if ($port !== null) {
-            $authority = $authority . ':' . $port;
-        }
-
-        return $authority;
+        return $this->constructString(
+            ['%s%s@', '%s%s', '%s:%s'],
+            [$this->getUserInfo(), $this->getHost(), $this->getPort()]
+        );
     }
 
     /**
@@ -378,21 +369,25 @@ class Uri implements UriInterface
      */
     public function __toString()
     {
-        $components = array_filter([
-            '%2$s:%1$s' => $this->getScheme(),
-            '%s//%s'    => $this->getAuthority(),
-            '%s%s'      => $this->getNormalizedUriPath(),
-            '%s?%s'     => $this->getQuery(),
-            '%s#%s'     => $this->getFragment(),
-        ], 'strlen');
+        return $this->constructString(
+            ['%s%s:', '%s//%s', '%s%s', '%s?%s', '%s#%s'],
+            [
+                $this->getScheme(),
+                $this->getAuthority(),
+                $this->getNormalizedUriPath(),
+                $this->getQuery(),
+                $this->getFragment()
+            ]
+        );
+    }
 
-        $uri = '';
+    private function constructString(array $formats, array $components)
+    {
+        $keys = array_keys(array_filter($components, 'strlen'));
 
-        foreach ($components as $format => $component) {
-            $uri = sprintf($format, $uri, $component);
-        }
-
-        return $uri;
+        return array_reduce($keys, function ($uri, $key) use ($formats, $components) {
+                return sprintf($formats[$key], $uri, $components[$key]);
+        }, '');
     }
 
     /**
