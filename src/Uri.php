@@ -181,7 +181,7 @@ class Uri implements UriInterface
         $scheme = strtolower($scheme);
         $pattern = new UriPattern();
 
-        if ($scheme === '' || $pattern->matchScheme($scheme)) {
+        if (strlen($scheme) === 0 || $pattern->matchScheme($scheme)) {
             return $this->with('scheme', $scheme);
         }
 
@@ -203,14 +203,16 @@ class Uri implements UriInterface
      */
     public function withUserInfo($user, $password = null)
     {
-        $info = rawurlencode($user);
-        $password = rawurlencode($password);
+        $username = rawurlencode($user);
 
-        if ($info !== '' && $password !== '') {
-            $info .= ':' . $password;
+        if (strlen($username) > 0) {
+            return $this->with('userInfo', $this->constructString([
+                '%2$s%1$s' => $username,
+                '%s:%s'    => rawurlencode($password),
+            ]));
         }
 
-        return $this->with('userInfo', $info);
+        return $this->with('userInfo', '');
     }
 
     /**
@@ -251,7 +253,7 @@ class Uri implements UriInterface
         if ($port !== null) {
             $port = (int) $port;
 
-            if ($port < 0 || $port > 65535) {
+            if (max(0, min(65535, $port)) !== $port) {
                 throw new \InvalidArgumentException("Invalid port number '$port'");
             }
         }
