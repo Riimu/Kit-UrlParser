@@ -12,7 +12,7 @@ use Psr\Http\Message\UriInterface;
  */
 class Uri implements UriInterface
 {
-    use UriAccessorTrait;
+    use ExtendedUriTrait;
 
     /** @var string The scheme component of the URI */
     private $scheme = '';

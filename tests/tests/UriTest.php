@@ -11,35 +11,66 @@ class UriTest extends \PHPUnit_Framework_TestCase
 {
     public function testEmptyUri()
     {
-        $this->assertSame('', (string) new Uri());
+        $this->assertUri('', new Uri());
     }
 
-    public function testUriScheme()
+    public function testScheme()
     {
-        $this->assertSame('http:', (string) (new Uri())->withScheme('http'));
+        $this->assertUri('scheme:', (new Uri())->withScheme('scheme'));
     }
 
-    public function testUriAuthority()
+    public function testAuthority()
     {
-        $this->assertSame(
-            '//user:pass@www.example.com:8080',
-            (string) (new Uri())->withUserInfo('user', 'pass')->withHost('www.example.com')->withPort(8080)
+        $this->assertUri('//www.example.com', (new Uri())->withHost('www.example.com'));
+        $this->assertUri('//username:password@', (new Uri())->withUserInfo('username', 'password'));
+        $this->assertUri('//:8080', (new Uri())->withPort(8080));
+        $this->assertUri('//username@:8080', (new Uri())->withUserInfo('username')->withPort(8080));
+
+        $this->assertUri(
+            '//username:password@www.example.com:8080',
+            (new Uri())->withHost('www.example.com')->withUserInfo('username', 'password')->withPort(8080)
         );
     }
 
-    public function testUriPath()
+    public function testEmptyUserInfo()
     {
-        $this->assertSame('path/to/file.html', (string) (new Uri())->withPath('path/to/file.html'));
+        $this->assertUri('//username@', (new Uri())->withUserInfo('username'));
+        $this->assertUri('', (new Uri())->withUserInfo('', 'password'));
     }
 
-    public function testUriQuery()
+    public function testPath()
     {
-        $this->assertSame('?foo=bar', (string) (new Uri())->withQuery('foo=bar'));
+        $this->assertUri('path/to/file.html', (new Uri())->withPath('path/to/file.html'));
+        $this->assertUri('/path/to/file.html', (new Uri())->withPath('/path/to/file.html'));
+        $this->assertUri('/path/to/file.html', (new Uri())->withPath('//path/to/file.html'));
     }
 
-    public function testUriFragment()
+    public function testSchemePath()
     {
-        $this->assertSame('#fragment', (string) (new Uri())->withFragment('fragment'));
+        $uri = (new Uri())->withScheme('scheme');
+
+        $this->assertUri('scheme:path/to/file.html', $uri->withPath('path/to/file.html'));
+        $this->assertUri('scheme:/path/to/file.html', $uri->withPath('/path/to/file.html'));
+        $this->assertUri('scheme:/path/to/file.html', $uri->withPath('//path/to/file.html'));
+    }
+
+    public function testAuthorityPath()
+    {
+        $uri = (new Uri())->withHost('www.example.com');
+
+        $this->assertUri('//www.example.com/path/to/file.html', $uri->withPath('path/to/file.html'));
+        $this->assertUri('//www.example.com/path/to/file.html', $uri->withPath('/path/to/file.html'));
+        $this->assertUri('//www.example.com//path/to/file.html', $uri->withPath('//path/to/file.html'));
+    }
+
+    public function testQuery()
+    {
+        $this->assertUri('?query=string', (new Uri())->withQuery('query=string'));
+    }
+
+    public function testFragment()
+    {
+        $this->assertUri('#fragment', (new Uri())->withFragment('fragment'));
     }
 
     /**
@@ -48,17 +79,17 @@ class UriTest extends \PHPUnit_Framework_TestCase
     public function testCompleteUri()
     {
         $uri = (new Uri())
-            ->withScheme('http')
-            ->withUserInfo('user', 'pass')
+            ->withScheme('scheme')
+            ->withUserInfo('username', 'password')
             ->withHost('www.example.com')
             ->withPort(8080)
             ->withPath('path/to/file.html')
-            ->withQuery('foo=bar')
+            ->withQuery('query=string')
             ->withFragment('fragment');
 
-        $this->assertSame(
-            'http://user:pass@www.example.com:8080/path/to/file.html?foo=bar#fragment',
-            (string) $uri
+        $this->assertUri(
+            'scheme://username:password@www.example.com:8080/path/to/file.html?query=string#fragment',
+            $uri
         );
 
         return $uri;
@@ -79,46 +110,48 @@ class UriTest extends \PHPUnit_Framework_TestCase
             ->withQuery('')
             ->withFragment('');
 
-        $this->assertSame('', (string) $uri);
+        $this->assertUri('', $uri);
     }
 
     public function testUserInfoEncoding()
     {
         $uri = (new Uri())->withUserInfo('user/name', 'pass/word');
-
-        $this->assertSame('user%2Fname:pass%2Fword', $uri->getUserInfo());
-        $this->assertSame('user/name', $uri->getUsername());
-        $this->assertSame('pass/word', $uri->getPassword());
+        $this->assertUri('//user%2Fname:pass%2Fword@', $uri);
     }
 
-    public function testPathSegmentEncoding()
+    public function testPathEncoding()
     {
-        $uri = (new Uri())->withPathSegments(['foo/bar', 'baz.html']);
-        $this->assertSame('foo%2Fbar/baz.html', $uri->getPath());
-        $this->assertSame(['foo/bar', 'baz.html'], $uri->getPathSegments());
+        $uri = (new Uri())->withPath('path:to file.html');
+        $this->assertUri('path%3Ato%20file.html', $uri);
     }
 
-    public function testQueryParameterEncoding()
+    public function testDoubleEncoding()
     {
-        $uri = (new Uri())->withQueryParameters(['foo' => 'bar&baz=1', 'i' => '1']);
-        $this->assertSame('foo=bar%26baz%3D1&i=1', $uri->getQuery());
-        $this->assertSame(['foo' => 'bar&baz=1', 'i' => '1'], $uri->getQueryParameters());
+        $this->assertUri('foo%20%20bar', (new Uri())->withPath('foo%20 bar'));
+    }
+
+    public function testEncodingNormalization()
+    {
+        $this->assertUri('foo%AF%AFbar', (new Uri())->withPath('foo%AF%afbar'));
+    }
+
+    public function testCaseNormalization()
+    {
+        $this->assertUri('//www.example.com', (new Uri())->withHost('WWW.EXAMPLE.COM'));
+        $this->assertUri('scheme:', (new Uri())->withScheme('SCHEME'));
     }
 
     public function testImmutability()
     {
         $uri = new Uri();
 
-        $this->assertNotSame($uri, $uri->withScheme('http'));
-        $this->assertNotSame($uri, $uri->withUserInfo('user', 'pass'));
+        $this->assertNotSame($uri, $uri->withScheme('scheme'));
+        $this->assertNotSame($uri, $uri->withUserInfo('username', 'password'));
         $this->assertNotSame($uri, $uri->withHost('www.example.com'));
         $this->assertNotSame($uri, $uri->withPort(8080));
         $this->assertNotSame($uri, $uri->withPath('path/to/file.html'));
         $this->assertNotSame($uri, $uri->withQuery('foo=bar'));
         $this->assertNotSame($uri, $uri->withFragment('fragment'));
-
-        $this->assertNotSame($uri, $uri->withPathSegments(['foo', 'bar.html']));
-        $this->assertNotSame($uri, $uri->withQueryParameters(['foo' => 'bar']));
     }
 
     public function testImmutabilityOptimization()
@@ -159,67 +192,17 @@ class UriTest extends \PHPUnit_Framework_TestCase
         $uri->withPort(65536);
     }
 
-    public function testEmptyUserInfo()
+    /**
+     * Asserts that the URI produces the expected string.
+     * @param string $expected The expected string
+     * @param Uri $uri The URI to test
+     */
+    private function assertUri($expected, $uri)
     {
-        $this->assertSame('username:password', (new Uri())->withUserInfo('username', 'password')->getUserInfo());
-        $this->assertSame('username', (new Uri())->withUserInfo('username')->getUserInfo());
-        $this->assertSame('', (new Uri())->withUserInfo('', 'password')->getUserInfo());
-    }
+        $parser = new UriParser();
 
-    public function testDoubleEncoding()
-    {
-        $uri = (new Uri())->withPath('foo%20bar?');
-        $this->assertSame('foo%20bar%3F', $uri->getPath());
-    }
-
-    public function testEncodingNormalization()
-    {
-        $uri = (new Uri())->withPath('foo%afbar');
-        $this->assertSame('foo%AFbar', $uri->getPath());
-    }
-
-    public function testIpAddress()
-    {
-        $this->assertSame(null, (new Uri())->withHost('www.example.com')->getIpAddress());
-        $this->assertSame('127.0.0.1', (new Uri())->withHost('127.0.0.1')->getIpAddress());
-        $this->assertSame('2001:db8::ff00:42:8329', (new Uri())->withHost('[2001:db8::ff00:42:8329]')->getIpAddress());
-        $this->assertSame('future', (new Uri())->withHost('[vF.future]')->getIpAddress());
-    }
-
-    public function testTld()
-    {
-        $this->assertSame('', (new Uri())->getTld());
-        $this->assertSame('com', (new Uri())->withHost('www.example.com')->getTld());
-        $this->assertSame('com', (new Uri())->withHost('www.example.com.')->getTld());
-        $this->assertSame('', (new Uri())->withHost('127.0.0.1')->getTld());
-        $this->assertSame('example', (new Uri())->withHost('example')->getTld());
-    }
-
-    public function testPathExtension()
-    {
-        $this->assertSame('', (new Uri())->getPathExtension());
-        $this->assertSame('', (new Uri())->withPath('path/to.php/file')->getPathExtension());
-        $this->assertSame('html', (new Uri())->withPath('path/to/file.html')->getPathExtension());
-    }
-
-    public function testPathNormalization()
-    {
-        $this->assertSame('//host/path', (string) (new Uri())->withHost('host')->withPath('path'));
-        $this->assertSame('//host/path', (string) (new Uri())->withHost('host')->withPath('/path'));
-        $this->assertSame('//host//path', (string) (new Uri())->withHost('host')->withPath('//path'));
-        $this->assertSame('//host', (string) (new Uri())->withHost('host'));
-        $this->assertSame('/path', (string) (new Uri())->withPath('//path'));
-    }
-
-    public function testStandardPortOmission()
-    {
-        $uri = (new Uri())->withHost('www.example.com')->withPort(80);
-        $this->assertSame('//www.example.com:80', (string) $uri);
-        $this->assertSame('http://www.example.com', (string) $uri->withScheme('http'));
-    }
-
-    public function testHostCaseNormalization()
-    {
-        $this->assertSame('foo%BAr', (new Uri())->withHost('Foo%BaR')->getHost());
+        $this->assertInstanceOf('Riimu\Kit\UrlParser\Uri', $uri);
+        $this->assertSame($expected, $uri->__toString());
+        $this->assertSame($expected, (string) $parser->parse($uri));
     }
 }

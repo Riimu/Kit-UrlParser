@@ -87,7 +87,7 @@ class UriPattern
     {
         $matches = [];
 
-        if (preg_match($pattern, $subject, $match) === 1) {
+        if (preg_match($pattern, (string) $subject, $match) === 1) {
             foreach ($match as $key => $value) {
                 if (is_string($key) && strlen($value) > 0) {
                     $matches[$key] = $value;

@@ -7,28 +7,34 @@ class UriParserTest extends \PHPUnit_Framework_TestCase
     public function testFullUri()
     {
         $parser = new UriParser();
-        $uri = $parser->parse('http://user:pass@www.example.com:8080/path/to/file.html?foo=bar#fragment');
+        $uri = $parser->parse(
+            'scheme://username:password@www.example.com:8080/path/to/file.html?query=string#fragment'
+        );
 
-        $this->assertSame('http', $uri->getScheme());
-        $this->assertSame('user:pass', $uri->getUserInfo());
+        $this->assertSame('scheme', $uri->getScheme());
+        $this->assertSame('username:password', $uri->getUserInfo());
         $this->assertSame('www.example.com', $uri->getHost());
         $this->assertSame(8080, $uri->getPort());
+        $this->assertSame('username:password@www.example.com:8080', $uri->getAuthority());
         $this->assertSame('/path/to/file.html', $uri->getPath());
-        $this->assertSame('foo=bar', $uri->getQuery());
+        $this->assertSame('query=string', $uri->getQuery());
         $this->assertSame('fragment', $uri->getFragment());
     }
 
     public function testRelativeUri()
     {
         $parser = new UriParser();
-        $uri = $parser->parse('//user:pass@www.example.com:8080/path/to/file.html?foo=bar#fragment');
+        $uri = $parser->parse(
+            '//username:password@www.example.com:8080/path/to/file.html?query=string#fragment'
+        );
 
         $this->assertSame('', $uri->getScheme());
-        $this->assertSame('user:pass', $uri->getUserInfo());
+        $this->assertSame('username:password', $uri->getUserInfo());
         $this->assertSame('www.example.com', $uri->getHost());
         $this->assertSame(8080, $uri->getPort());
+        $this->assertSame('username:password@www.example.com:8080', $uri->getAuthority());
         $this->assertSame('/path/to/file.html', $uri->getPath());
-        $this->assertSame('foo=bar', $uri->getQuery());
+        $this->assertSame('query=string', $uri->getQuery());
         $this->assertSame('fragment', $uri->getFragment());
     }
 
@@ -79,11 +85,38 @@ class UriParserTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('future', $parser->parse('//[vF.future]')->getIpAddress());
     }
 
-    public function testMinimalURIs()
+    /**
+     * @dataProvider getCornerCases
+     */
+    public function testCornerCase($case, $scheme, $host, $path, $string)
     {
         $parser = new UriParser();
+        $uri = $parser->parse($case);
 
-        $this->assertInstanceOf('Riimu\Kit\UrlParser\Uri', $parser->parse('a:'));
-        $this->assertInstanceOf('Riimu\Kit\UrlParser\Uri', $parser->parse(''));
+        $this->assertInstanceOf('Riimu\Kit\UrlParser\Uri', $uri);
+        $this->assertSame($scheme, $uri->getScheme());
+        $this->assertSame($host, $uri->getHost());
+        $this->assertSame($path, $uri->getPath());
+        $this->assertSame($string, (string) $uri);
+    }
+
+    public function getCornerCases()
+    {
+        return [
+            ['', '', '', '', ''],
+            ['scheme:', 'scheme', '', '', 'scheme:'],
+            ['http:non/root/path', 'http', '', 'non/root/path', 'http:non/root/path'],
+            ['http:///rooted/path', 'http', '', '/rooted/path', 'http:/rooted/path'],
+            ['http:////absolute/double/slash', 'http', '', '//absolute/double/slash', 'http:/absolute/double/slash'],
+            [
+                'http://authority//absolute/double/slash',
+                'http',
+                'authority',
+                '//absolute/double/slash',
+                'http://authority//absolute/double/slash',
+            ],
+            ['//authority', '', 'authority', '', '//authority'],
+            ['//authority/rooted/path', '', 'authority', '/rooted/path', '//authority/rooted/path'],
+        ];
     }
 }

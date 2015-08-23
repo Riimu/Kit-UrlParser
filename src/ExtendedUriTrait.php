@@ -13,7 +13,7 @@ namespace Riimu\Kit\UrlParser;
  * @copyright Copyright (c) 2015, Riikka Kalliomäki
  * @license http://opensource.org/licenses/mit-license.php MIT License
  */
-trait UriAccessorTrait
+trait ExtendedUriTrait
 {
     /** @var int[] List of known ports for different schemes */
     private static $standardPorts = [
@@ -180,7 +180,7 @@ trait UriAccessorTrait
     /**
      * Returns a new URI instance with the specified path.
      * @param string $path The path to use with the new instance
-     * @return self A new instance with the specified path
+     * @return ExtendedUriTrait A new instance with the specified path
      */
     abstract public function withPath($path);
 
@@ -193,7 +193,7 @@ trait UriAccessorTrait
      * segments.
      *
      * @param string[] $segments Path segments for the new path
-     * @return self A new instance with the specified path
+     * @return ExtendedUriTrait A new instance with the specified path
      */
     public function withPathSegments(array $segments)
     {
@@ -205,7 +205,7 @@ trait UriAccessorTrait
     /**
      * Returns a new URI instance with the specified query string.
      * @param string $query The query string to use with the new instance
-     * @return self A new instance with the specified query string
+     * @return ExtendedUriTrait A new instance with the specified query string
      */
     abstract public function withQuery($query);
 
@@ -218,7 +218,7 @@ trait UriAccessorTrait
      * encoded, since this method assumes that all the values are unencoded.
      *
      * @param array $parameters Parameters for the query
-     * @return self A new instance with the specified query string
+     * @return ExtendedUriTrait A new instance with the specified query string
      */
     public function withQueryParameters(array $parameters)
     {
