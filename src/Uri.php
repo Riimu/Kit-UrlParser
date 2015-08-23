@@ -340,8 +340,10 @@ class Uri implements UriInterface
      */
     private function encode($string, $extra = '')
     {
-        $chars = '%' . '-._~' . "!$&'()*+,;=" . $extra;
-        $pattern = sprintf('/[^0-9a-zA-Z%s]|%%(?![0-9A-F]{2})/', preg_quote($chars, '/'));
+        $pattern = sprintf(
+            '/[^0-9a-zA-Z%s]|%%(?![0-9A-F]{2})/',
+            preg_quote("%-._~!$&'()*+,;=$extra", '/')
+        );
 
         return preg_replace_callback($pattern, function ($match) {
             return sprintf('%%%02X', ord($match[0]));
