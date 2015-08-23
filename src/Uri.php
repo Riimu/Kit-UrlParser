@@ -67,10 +67,11 @@ class Uri implements UriInterface
      */
     public function getAuthority()
     {
-        return $this->constructString(
-            ['%s%s@', '%s%s', '%s:%s'],
-            [$this->getUserInfo(), $this->getHost(), $this->getPort()]
-        );
+        return $this->constructString([
+            '%2$s@%1$s' => $this->getUserInfo(),
+            '%s%s'      => $this->getHost(),
+            '%s:%s'     => $this->getPort(),
+        ]);
     }
 
     /**
@@ -369,24 +370,28 @@ class Uri implements UriInterface
      */
     public function __toString()
     {
-        return $this->constructString(
-            ['%s%s:', '%s//%s', '%s%s', '%s?%s', '%s#%s'],
-            [
-                $this->getScheme(),
-                $this->getAuthority(),
-                $this->getNormalizedUriPath(),
-                $this->getQuery(),
-                $this->getFragment()
-            ]
-        );
+        return $this->constructString([
+            '%2$s:%1$s' => $this->getScheme(),
+            '%s//%s'    => $this->getAuthority(),
+            '%s%s'      => $this->getNormalizedUriPath(),
+            '%s?%s'     => $this->getQuery(),
+            '%s#%s'     => $this->getFragment(),
+        ]);
     }
 
-    private function constructString(array $formats, array $components)
+    /**
+     * Constructs string from non empty parts with specific formats.
+     * @param array $components Associative array of formats and values
+     * @return string The constructed string
+     */
+    private function constructString(array $components)
     {
-        $keys = array_keys(array_filter($components, 'strlen'));
+        $formats = array_keys($components);
+        $values = array_values($components);
+        $keys = array_keys(array_filter($values, 'strlen'));
 
-        return array_reduce($keys, function ($uri, $key) use ($formats, $components) {
-                return sprintf($formats[$key], $uri, $components[$key]);
+        return array_reduce($keys, function ($string, $key) use ($formats, $values) {
+            return sprintf($formats[$key], $string, $values[$key]);
         }, '');
     }
 
