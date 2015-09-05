@@ -205,13 +205,11 @@ class UriTest extends \PHPUnit_Framework_TestCase
      */
     private function assertUri($expected, $uri)
     {
-        $parser = new UriParser();
-
         $this->assertInstanceOf('Riimu\Kit\UrlParser\Uri', $uri);
         $generated = $uri->__toString();
 
         $this->assertSame($expected, $generated);
-        $this->assertSame($expected, (string) $parser->parse($generated));
+        $this->assertSame($expected, (string) (new UriParser())->parse($generated));
         $this->assertSame($expected, (string) new Uri($generated));
     }
 }

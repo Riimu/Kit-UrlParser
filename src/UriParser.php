@@ -38,6 +38,26 @@ class UriParser
         'fragment'      => 'withFragment',
     ];
 
+    /** @var bool Whether UTF8 is allowed in URI path, query and fragment or not */
+    private $allowUtf8;
+
+    /**
+     * Creates a new instance of UriParser.
+     */
+    public function __construct()
+    {
+        $this->allowUtf8 = false;
+    }
+
+    /**
+     * Allows or disables UTF-8 encoded characters in path, query and fragment.
+     * @param bool $enabled True to allow, false to disable
+     */
+    public function allowUtf8($enabled = true)
+    {
+        $this->allowUtf8 = (bool) $enabled;
+    }
+
     /**
      * Parses the URL using the generic URI syntax.
      *
@@ -52,19 +72,48 @@ class UriParser
      */
     public function parse($uri)
     {
-        $pattern = new UriPattern();
-
-        try {
-            if ($pattern->matchAbsoluteUri($uri, $match)) {
-                return $this->buildUri($match);
-            } elseif ($pattern->matchRelativeUri($uri, $match)) {
-                return $this->buildUri($match);
-            }
-        } catch (\InvalidArgumentException $exception) {
+        if (!$this->isValidString($uri)) {
             return null;
         }
 
+        $pattern = new UriPattern();
+        $pattern->allowNonAscii($this->allowUtf8);
+
+        if ($pattern->matchUri($uri, $match)) {
+            try {
+                return $this->buildUri($match);
+            } catch (\InvalidArgumentException $exception) {
+                return null;
+            }
+        }
+
         return null;
+    }
+
+    /**
+     * Tells if the string is a valid URI string according to encoding settings.
+     * @param string $uri The URI to validate
+     * @return bool True if the string is valid, false if not
+     */
+    private function isValidString($uri)
+    {
+        if ($this->allowUtf8) {
+            return (bool) preg_match(
+                '/^(?>
+                    [\x00-\x7F]+                       # ASCII
+                  | [\xC2-\xDF][\x80-\xBF]             # non-overlong 2-byte
+                  |  \xE0[\xA0-\xBF][\x80-\xBF]        # excluding over longs
+                  | [\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}  # straight 3-byte
+                  |  \xED[\x80-\x9F][\x80-\xBF]        # excluding surrogates
+                  |  \xF0[\x90-\xBF][\x80-\xBF]{2}     # planes 1-3
+                  | [\xF1-\xF3][\x80-\xBF]{3}          # planes 4-15
+                  |  \xF4[\x80-\x8F][\x80-\xBF]{2}     # plane 16
+                )*$/x',
+                $uri
+            );
+        }
+
+        return (bool) preg_match('/^[\\x00-\\x7F]*$/', $uri);
     }
 
     /**

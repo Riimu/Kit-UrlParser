@@ -120,6 +120,24 @@ class UriParserTest extends \PHPUnit_Framework_TestCase
         ];
     }
 
+    public function testUtfParsing()
+    {
+        $parser = new UriParser();
+        $this->assertNull($parser->parse('http://www.example.com/föö?föö=bär#fööbär'));
+        $this->assertNull($parser->parse('http://www.fööbär.com'));
+        $this->assertNull($parser->parse("http://www.example.com/\xFF"));
+
+        $parser->allowUtf8();
+
+        $this->assertInstanceOf(
+            'Riimu\Kit\UrlParser\Uri',
+            $parser->parse('http://www.example.com/föö?föö=bär#fööbär')
+        );
+
+        $this->assertNull($parser->parse('http://www.fööbär.com'));
+        $this->assertNull($parser->parse("http://www.example.com/\xFF"));
+    }
+
     public function testBadPortNumber()
     {
         $parser = new UriParser();

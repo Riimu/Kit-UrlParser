@@ -22,14 +22,43 @@ class UriPattern
     /** @var string PCRE pattern that conforms to the host ABNF */
     private static $host;
 
+    /** @var bool Whether non ascii characters are allowed in certain sections or not */
+    private $allowNonAscii;
+
     /**
      * Creates a new instance of UriPattern.
      */
     public function __construct()
     {
+        $this->allowNonAscii = false;
+
         if (!isset(self::$absoluteUri)) {
             $this->buildPatterns();
         }
+    }
+
+    /**
+     * Allows or disables non ascii characters in path, fragment and query.
+     * @param bool $enabled True to allow, false to disable
+     */
+    public function allowNonAscii($enabled = true)
+    {
+        $this->allowNonAscii = (bool) $enabled;
+    }
+
+    /**
+     * Matches the string against URI or relative-ref ABNF.
+     * @param string $uri The string to match
+     * @param array $matches Provides the matched sub sections from the match
+     * @return bool True if the URI matches, false if not
+     */
+    public function matchUri($uri, & $matches = [])
+    {
+        if ($this->matchAbsoluteUri($uri, $matches)) {
+            return true;
+        }
+
+        return $this->matchRelativeUri($uri, $matches);
     }
 
     /**
@@ -87,6 +116,10 @@ class UriPattern
     {
         $matches = [];
 
+        if (!$this->allowNonAscii && preg_match('/[\\x80-\\xFF]/', $subject)) {
+            return false;
+        }
+
         if (preg_match($pattern, (string) $subject, $match) === 1) {
             $keys = array_filter(array_keys($match), 'is_string');
             $literal = array_intersect_key($match, array_flip($keys));
@@ -116,7 +149,7 @@ class UriPattern
         $h16 = "[$hex]{1,4}";
         $ls32 = "(?:$h16:$h16|$ipv4address)";
 
-        $data = "[$unreserved$delimiters:@]++|$encoded";
+        $data = "[$unreserved$delimiters:@\\x80-\\xFF]++|$encoded";
 
         // Defining the scheme
         $scheme = "(?'scheme'(?>[$alpha][$alpha$digit+\\-.]*+))";
@@ -146,7 +179,7 @@ class UriPattern
         // Defining the path
         $segment = "(?>(?:$data)*)";
         $segmentNotEmpty = "(?>(?:$data)+)";
-        $segmentNoScheme = "(?>([$unreserved$delimiters@]++|$encoded)+)";
+        $segmentNoScheme = "(?>([$unreserved$delimiters@\\x80-\\xFF]++|$encoded)+)";
 
         $pathAbsoluteEmpty = "(?'path_abempty'(?:/$segment)*)";
         $pathAbsolute = "(?'path_absolute'/(?:$segmentNotEmpty(?:/$segment)*)?)";
