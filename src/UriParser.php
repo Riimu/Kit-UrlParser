@@ -54,10 +54,14 @@ class UriParser
     {
         $pattern = new UriPattern();
 
-        if ($pattern->matchAbsoluteUri($uri, $match)) {
-            return $this->buildUri($match);
-        } elseif ($pattern->matchRelativeUri($uri, $match)) {
-            return $this->buildUri($match);
+        try {
+            if ($pattern->matchAbsoluteUri($uri, $match)) {
+                return $this->buildUri($match);
+            } elseif ($pattern->matchRelativeUri($uri, $match)) {
+                return $this->buildUri($match);
+            }
+        } catch (\InvalidArgumentException $exception) {
+            return null;
         }
 
         return null;

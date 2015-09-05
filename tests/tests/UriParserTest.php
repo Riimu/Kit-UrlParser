@@ -119,4 +119,10 @@ class UriParserTest extends \PHPUnit_Framework_TestCase
             ['//authority/rooted/path', '', 'authority', '/rooted/path', '//authority/rooted/path'],
         ];
     }
+
+    public function testBadPortNumber()
+    {
+        $parser = new UriParser();
+        $this->assertNull($parser->parse('http://www.example.com:65536'));
+    }
 }
