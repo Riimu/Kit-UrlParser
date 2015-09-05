@@ -36,6 +36,28 @@ class Uri implements UriInterface
     private $fragment = '';
 
     /**
+     * Creates a new instance of Uri.
+     * @param string $uri The Uri provided as a string or empty string for none
+     * @throws \InvalidArgumentException If the provided Uri is invalid
+     */
+    public function __construct($uri = '')
+    {
+        $uri = (string) $uri;
+
+        if ($uri !== '') {
+            $parsed = (new UriParser())->parse($uri);
+
+            if (!$parsed instanceof self) {
+                throw new \InvalidArgumentException("Invalid URI '$uri'");
+            }
+
+            foreach (get_object_vars($parsed) as $name => $value) {
+                $this->$name = $value;
+            }
+        }
+    }
+
+    /**
      * Returns the scheme component of the URI.
      *
      * Note that the returned value will always be normalized to lowercase,
@@ -68,9 +90,9 @@ class Uri implements UriInterface
     public function getAuthority()
     {
         return $this->constructString([
-            '%2$s@%1$s' => $this->getUserInfo(),
-            '%s%s'      => $this->getHost(),
-            '%s:%s'     => $this->getPort(),
+            '%s%s@' => $this->getUserInfo(),
+            '%s%s'  => $this->getHost(),
+            '%s:%s' => $this->getPort(),
         ]);
     }
 
@@ -207,8 +229,8 @@ class Uri implements UriInterface
 
         if (strlen($username) > 0) {
             return $this->with('userInfo', $this->constructString([
-                '%2$s%1$s' => $username,
-                '%s:%s'    => rawurlencode($password),
+                '%s%s'  => $username,
+                '%s:%s' => rawurlencode($password),
             ]));
         }
 
@@ -373,11 +395,11 @@ class Uri implements UriInterface
     public function __toString()
     {
         return $this->constructString([
-            '%2$s:%1$s' => $this->getScheme(),
-            '%s//%s'    => $this->getAuthority(),
-            '%s%s'      => $this->getNormalizedUriPath(),
-            '%s?%s'     => $this->getQuery(),
-            '%s#%s'     => $this->getFragment(),
+            '%s%s:'  => $this->getScheme(),
+            '%s//%s' => $this->getAuthority(),
+            '%s%s'   => $this->getNormalizedUriPath(),
+            '%s?%s'  => $this->getQuery(),
+            '%s#%s'  => $this->getFragment(),
         ]);
     }
 

@@ -192,6 +192,12 @@ class UriTest extends \PHPUnit_Framework_TestCase
         $uri->withPort(65536);
     }
 
+    public function testInvalidUri()
+    {
+        $this->setExpectedException('InvalidArgumentException');
+        new Uri('http&:');
+    }
+
     /**
      * Asserts that the URI produces the expected string.
      * @param string $expected The expected string
@@ -202,7 +208,10 @@ class UriTest extends \PHPUnit_Framework_TestCase
         $parser = new UriParser();
 
         $this->assertInstanceOf('Riimu\Kit\UrlParser\Uri', $uri);
-        $this->assertSame($expected, $uri->__toString());
-        $this->assertSame($expected, (string) $parser->parse($uri));
+        $generated = $uri->__toString();
+
+        $this->assertSame($expected, $generated);
+        $this->assertSame($expected, (string) $parser->parse($generated));
+        $this->assertSame($expected, (string) new Uri($generated));
     }
 }
