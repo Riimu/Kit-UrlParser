@@ -25,6 +25,15 @@ namespace Riimu\Kit\UrlParser;
  */
 class UriParser
 {
+    /** Parser mode that conforms strictly to the RFC 3986 specification */
+    const MODE_RFC3986 = 1;
+
+    /** Parsing mode that allows UTF-8 characters in some URI components */
+    const MODE_UTF8 = 2;
+
+    /** Parsing mode that also converts international domain names to ascii */
+    const MODE_IDNA2003 = 4;
+
     /** @var array<string,string> List of methods used to assign the URI components */
     private static $mutators = [
         'scheme'        => 'withScheme',
@@ -38,24 +47,24 @@ class UriParser
         'fragment'      => 'withFragment',
     ];
 
-    /** @var bool Whether UTF8 is allowed in URI path, query and fragment or not */
-    private $allowUtf8;
+    /** @var int The current parsing mode */
+    private $mode;
 
     /**
      * Creates a new instance of UriParser.
      */
     public function __construct()
     {
-        $this->allowUtf8 = false;
+        $this->mode = self::MODE_RFC3986;
     }
 
     /**
-     * Allows or disables UTF-8 encoded characters in path, query and fragment.
-     * @param bool $enabled True to allow, false to disable
+     * Sets the parsing mode.
+     * @param int $mode One of the parsing mode constants
      */
-    public function allowUtf8($enabled = true)
+    public function setMode($mode)
     {
-        $this->allowUtf8 = (bool) $enabled;
+        $this->mode = (int) $mode;
     }
 
     /**
@@ -77,7 +86,7 @@ class UriParser
         }
 
         $pattern = new UriPattern();
-        $pattern->allowNonAscii($this->allowUtf8);
+        $pattern->allowNonAscii($this->mode !== self::MODE_RFC3986);
 
         if ($pattern->matchUri($uri, $match)) {
             try {
@@ -91,29 +100,31 @@ class UriParser
     }
 
     /**
-     * Tells if the string is a valid URI string according to encoding settings.
+     * Tells if the URI string is valid for the current parser mode.
      * @param string $uri The URI to validate
      * @return bool True if the string is valid, false if not
      */
     private function isValidString($uri)
     {
-        if ($this->allowUtf8) {
-            return (bool) preg_match(
-                '/^(?>
-                    [\x00-\x7F]+                       # ASCII
-                  | [\xC2-\xDF][\x80-\xBF]             # non-overlong 2-byte
-                  |  \xE0[\xA0-\xBF][\x80-\xBF]        # excluding over longs
-                  | [\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}  # straight 3-byte
-                  |  \xED[\x80-\x9F][\x80-\xBF]        # excluding surrogates
-                  |  \xF0[\x90-\xBF][\x80-\xBF]{2}     # planes 1-3
-                  | [\xF1-\xF3][\x80-\xBF]{3}          # planes 4-15
-                  |  \xF4[\x80-\x8F][\x80-\xBF]{2}     # plane 16
-                )*$/x',
-                $uri
-            );
+        if (preg_match('/^[\\x00-\\x7F]*$/', $uri)) {
+            return true;
+        } elseif ($this->mode === self::MODE_RFC3986) {
+            return false;
         }
 
-        return (bool) preg_match('/^[\\x00-\\x7F]*$/', $uri);
+        $pattern =
+            '/^(?>
+                [\x00-\x7F]+                       # ASCII
+              | [\xC2-\xDF][\x80-\xBF]             # non-overlong 2-byte
+              |  \xE0[\xA0-\xBF][\x80-\xBF]        # excluding over longs
+              | [\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}  # straight 3-byte
+              |  \xED[\x80-\x9F][\x80-\xBF]        # excluding surrogates
+              |  \xF0[\x90-\xBF][\x80-\xBF]{2}     # planes 1-3
+              | [\xF1-\xF3][\x80-\xBF]{3}          # planes 4-15
+              |  \xF4[\x80-\x8F][\x80-\xBF]{2}     # plane 16
+            )*$/x';
+
+        return (bool) preg_match($pattern, $uri);
     }
 
     /**
@@ -124,7 +135,10 @@ class UriParser
     private function buildUri(array $components)
     {
         $uri = new Uri();
-        $components = array_filter($components, 'strlen');
+
+        if (isset($components['reg_name'])) {
+            $components['host'] = $this->decodeHost($components['host']);
+        }
 
         foreach (array_intersect_key($components, self::$mutators) as $key => $value) {
             $uri = call_user_func([$uri, self::$mutators[$key]], $value);
@@ -137,5 +151,28 @@ class UriParser
         }
 
         return $uri;
+    }
+
+    /**
+     * Decodes the hostname component according to parser mode.
+     * @param string $hostname The parsed hostname
+     * @return string The decoded hostname
+     * @throws \InvalidArgumentException If the hostname is not valid
+     */
+    private function decodeHost($hostname)
+    {
+        if (preg_match('/^[\\x00-\\x7F]*$/', $hostname)) {
+            return $hostname;
+        } elseif ($this->mode !== self::MODE_IDNA2003) {
+            throw new \InvalidArgumentException("Invalid hostname '$hostname'");
+        }
+
+        $hostname = idn_to_ascii($hostname);
+
+        if ($hostname === false) {
+            throw new \InvalidArgumentException("Invalid hostname '$hostname'");
+        }
+
+        return $hostname;
     }
 }

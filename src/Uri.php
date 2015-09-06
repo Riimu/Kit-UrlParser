@@ -38,14 +38,17 @@ class Uri implements UriInterface
     /**
      * Creates a new instance of Uri.
      * @param string $uri The Uri provided as a string or empty string for none
+     * @param int $mode The parser mode for the Uri
      * @throws \InvalidArgumentException If the provided Uri is invalid
      */
-    public function __construct($uri = '')
+    public function __construct($uri = '', $mode = UriParser::MODE_RFC3986)
     {
         $uri = (string) $uri;
 
         if ($uri !== '') {
-            $parsed = (new UriParser())->parse($uri);
+            $parser = new UriParser();
+            $parser->setMode($mode);
+            $parsed = $parser->parse($uri);
 
             if (!$parsed instanceof self) {
                 throw new \InvalidArgumentException("Invalid URI '$uri'");

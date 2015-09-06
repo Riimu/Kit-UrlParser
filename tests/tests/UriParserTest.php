@@ -123,19 +123,39 @@ class UriParserTest extends \PHPUnit_Framework_TestCase
     public function testUtfParsing()
     {
         $parser = new UriParser();
-        $this->assertNull($parser->parse('http://www.example.com/föö?föö=bär#fööbär'));
+        $this->assertNull($parser->parse(
+            'http://usernäme:pässword@www.example.com/föö/bär.html?föö=bär#fööbär'
+        ));
+
         $this->assertNull($parser->parse('http://www.fööbär.com'));
         $this->assertNull($parser->parse("http://www.example.com/\xFF"));
 
-        $parser->allowUtf8();
+        $parser->setMode(UriParser::MODE_UTF8);
 
         $this->assertInstanceOf(
             'Riimu\Kit\UrlParser\Uri',
-            $parser->parse('http://www.example.com/föö?föö=bär#fööbär')
+            $parser->parse('http://usernäme:pässwörd@www.example.com/föö/bär.html?föö=bär#fööbär')
         );
 
         $this->assertNull($parser->parse('http://www.fööbär.com'));
         $this->assertNull($parser->parse("http://www.example.com/\xFF"));
+    }
+
+    public function testIdnParsing()
+    {
+        $parser = new UriParser();
+        $parser->setMode(UriParser::MODE_IDNA2003);
+        $uri = $parser->parse('http://www.fööbär.com');
+
+        $this->assertInstanceOf('Riimu\Kit\UrlParser\Uri', $uri);
+        $this->assertSame('www.xn--fbr-rla2ga.com', $uri->getHost());
+    }
+
+    public function testIdnParsingFailure()
+    {
+        $parser = new UriParser();
+        $parser->setMode(UriParser::MODE_IDNA2003);
+        $this->assertNull($parser->parse("http://www.\xE2\xAC\x8C.com"));
     }
 
     public function testBadPortNumber()

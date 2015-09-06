@@ -13,10 +13,10 @@ class UriPatternTest extends \PHPUnit_Framework_TestCase
     {
         $pattern = new UriPattern();
         $this->assertFalse($pattern->matchUri("http://www.example.com/\xFF"));
-        $this->assertFalse($pattern->matchUri("http://www.\xFF.com"));
+        $this->assertFalse($pattern->matchUri("http\xFF://www.example.com"));
 
         $pattern->allowNonAscii();
         $this->assertTrue($pattern->matchUri("http://www.example.com/\xFF"));
-        $this->assertFalse($pattern->matchUri("http://www.\xFF.com"));
+        $this->assertFalse($pattern->matchUri("http\xFF://www.example.com"));
     }
 }

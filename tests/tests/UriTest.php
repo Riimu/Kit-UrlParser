@@ -198,6 +198,18 @@ class UriTest extends \PHPUnit_Framework_TestCase
         new Uri('http&:');
     }
 
+    public function testParsingMode()
+    {
+        $uri = new Uri('/föö/bär.html', UriParser::MODE_UTF8);
+        $this->assertSame('/f%C3%B6%C3%B6/b%C3%A4r.html', $uri->getPath());
+    }
+
+    public function testInvalidParsingMode()
+    {
+        $this->setExpectedException('InvalidArgumentException');
+        new Uri('/föö/bär.html', UriParser::MODE_RFC3986);
+    }
+
     /**
      * Asserts that the URI produces the expected string.
      * @param string $expected The expected string

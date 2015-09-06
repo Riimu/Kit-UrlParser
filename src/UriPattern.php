@@ -38,8 +38,14 @@ class UriPattern
     }
 
     /**
-     * Allows or disables non ascii characters in path, fragment and query.
-     * @param bool $enabled True to allow, false to disable
+     * Allows or forbids non ascii characters where ascii letters are allowed.
+     *
+     * When enabled, non ascii characters are allowed in `userinfo`, `reg_name`,
+     * `path`, `query` and `fragment` parts of the URI. Note that pattern does
+     * not verify whether the bytes actually form valid UTF-8 characters or not.
+     * Enabling this option simply allows bytes within the range of `x80-xFF`.
+     *
+     * @param bool $enabled True to allow, false to forbid
      */
     public function allowNonAscii($enabled = true)
     {
@@ -115,20 +121,33 @@ class UriPattern
     private function match($pattern, $subject, & $matches)
     {
         $matches = [];
+        $subject = (string) $subject;
 
-        if (!$this->allowNonAscii && preg_match('/[\\x80-\\xFF]/', $subject)) {
-            return false;
-        }
+        if ($this->allowNonAscii || preg_match('/^[\\x00-\\x7F]*$/', $subject)) {
+            if (preg_match($pattern, $subject, $match)) {
+                $matches = $this->getNamedPatterns($match);
 
-        if (preg_match($pattern, (string) $subject, $match) === 1) {
-            $keys = array_filter(array_keys($match), 'is_string');
-            $literal = array_intersect_key($match, array_flip($keys));
-            $matches = array_filter($literal, 'strlen');
-
-            return true;
+                return true;
+            }
         }
 
         return false;
+    }
+
+    /**
+     * Returns nonempty named sub patterns from the match set.
+     * @param array<string|int,string> $matches Sub pattern matches
+     * @return array<string,string> Nonempty named sub pattern matches
+     */
+    private function getNamedPatterns($matches)
+    {
+        foreach ($matches as $key => $value) {
+            if (!is_string($key) || strlen($value) < 1) {
+                unset($matches[$key]);
+            }
+        }
+
+        return $matches;
     }
 
     /**
@@ -141,6 +160,7 @@ class UriPattern
         $hex = $digit . 'A-Fa-f';
         $unreserved = "$alpha$digit\\-._~";
         $delimiters = "!$&'()*+,;=";
+        $utf8 = '\\x80-\\xFF';
 
         $octet = "(?:[$digit]|[1-9][$digit]|1[$digit]{2}|2[0-4]$digit|25[0-5])";
         $ipv4address = "(?>$octet\\.$octet\\.$octet\\.$octet)";
@@ -149,7 +169,7 @@ class UriPattern
         $h16 = "[$hex]{1,4}";
         $ls32 = "(?:$h16:$h16|$ipv4address)";
 
-        $data = "[$unreserved$delimiters:@\\x80-\\xFF]++|$encoded";
+        $data = "[$unreserved$delimiters:@$utf8]++|$encoded";
 
         // Defining the scheme
         $scheme = "(?'scheme'(?>[$alpha][$alpha$digit+\\-.]*+))";
@@ -166,20 +186,20 @@ class UriPattern
             "(?:(?:(?:$h16:){0,5}$h16)?::$h16)|" .
             "(?:(?:(?:$h16:){0,6}$h16)?::))";
 
-        $regularName = "(?'reg_name'(?>(?:[$unreserved$delimiters]++|$encoded)*))";
+        $regularName = "(?'reg_name'(?>(?:[$unreserved$delimiters$utf8]++|$encoded)*))";
 
         $ipvFuture = "(?'IPvFuture'v[$hex]++\\.[$unreserved$delimiters:]++)";
         $ipLiteral = "(?'IP_literal'\\[(?>$ipv6address|$ipvFuture)\\])";
 
         $port = "(?'port'(?>[$digit]*+))";
         $host = "(?'host'$ipLiteral|(?'IPv4address'$ipv4address)|$regularName)";
-        $userInfo = "(?'userinfo'(?>(?:[$unreserved$delimiters:]++|$encoded)*))";
+        $userInfo = "(?'userinfo'(?>(?:[$unreserved$delimiters:$utf8]++|$encoded)*))";
         $authority = "(?'authority'(?:$userInfo@)?$host(?::$port)?)";
 
         // Defining the path
         $segment = "(?>(?:$data)*)";
         $segmentNotEmpty = "(?>(?:$data)+)";
-        $segmentNoScheme = "(?>([$unreserved$delimiters@\\x80-\\xFF]++|$encoded)+)";
+        $segmentNoScheme = "(?>([$unreserved$delimiters@$utf8]++|$encoded)+)";
 
         $pathAbsoluteEmpty = "(?'path_abempty'(?:/$segment)*)";
         $pathAbsolute = "(?'path_absolute'/(?:$segmentNotEmpty(?:/$segment)*)?)";
