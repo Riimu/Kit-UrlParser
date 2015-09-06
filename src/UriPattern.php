@@ -136,7 +136,7 @@ class UriPattern
 
     /**
      * Returns nonempty named sub patterns from the match set.
-     * @param array<string|int,string> $matches Sub pattern matches
+     * @param array $matches Sub pattern matches
      * @return array<string,string> Nonempty named sub pattern matches
      */
     private function getNamedPatterns($matches)

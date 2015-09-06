@@ -143,6 +143,10 @@ class UriParserTest extends \PHPUnit_Framework_TestCase
 
     public function testIdnParsing()
     {
+        if (!function_exists('idn_to_ascii')) {
+            $this->markTestSkipped('intl extension is not available');
+        }
+
         $parser = new UriParser();
         $parser->setMode(UriParser::MODE_IDNA2003);
         $uri = $parser->parse('http://www.fööbär.com');
@@ -153,6 +157,10 @@ class UriParserTest extends \PHPUnit_Framework_TestCase
 
     public function testIdnParsingFailure()
     {
+        if (!function_exists('idn_to_ascii')) {
+            $this->markTestSkipped('intl extension is not available');
+        }
+
         $parser = new UriParser();
         $parser->setMode(UriParser::MODE_IDNA2003);
         $this->assertNull($parser->parse("http://www.\xE2\xAC\x8C.com"));

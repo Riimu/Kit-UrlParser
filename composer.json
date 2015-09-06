@@ -21,6 +21,9 @@
     "php": ">=5.4.0",
     "psr/http-message": "1.*"
   },
+  "suggest": {
+    "ext-intl": "Required to parse URIs with IDNs"
+  },
   "autoload": {
     "psr-4": {
       "Riimu\\Kit\\UrlParser\\": "src/"
