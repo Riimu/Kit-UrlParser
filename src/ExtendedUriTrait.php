@@ -106,9 +106,10 @@ trait ExtendedUriTrait
      * Returns the top level domain from the host component.
      *
      * Note that if the host component represents an IP address, an empty string
-     * will be returned instead. Additionally, if the host component ends in a period,
-     * the section prior that period will be returned instead. If no period is present
-     * in the host component, the entire host component will be returned.
+     * will be returned instead. Additionally, if the host component ends in a
+     * period, the section prior that period will be returned instead. If no
+     * period is present in the host component, the entire host component will
+     * be returned.
      *
      * @return string The top level domain or an empty string, if no TLD is present
      */
@@ -182,19 +183,19 @@ trait ExtendedUriTrait
     }
 
     /**
-     * Returns a new URI instance with the specified path.
+     * Returns a URI instance with the specified path.
      * @param string $path The path to use with the new instance
      * @return self A new instance with the specified path
      */
     abstract public function withPath($path);
 
     /**
-     * Returns a new URI instance with path constructed from given path segments.
+     * Returns a URI instance with path constructed from given path segments.
      *
      * Note that all the segments are assumed to be decoded. Thus any percent
-     * encoded characters in the segments will be double encoded. Due to aggressive
-     * encoding, this method will even encode forward slashes in the provided
-     * segments.
+     * encoded characters in the segments will be double encoded. Due to
+     * aggressive encoding, this method will encode even the forward slashes in
+     * the provided segments.
      *
      * @param string[] $segments Path segments for the new path
      * @return self A new instance with the specified path
@@ -207,19 +208,20 @@ trait ExtendedUriTrait
     }
 
     /**
-     * Returns a new URI instance with the specified query string.
+     * Returns a URI instance with the specified query string.
      * @param string $query The query string to use with the new instance
      * @return self A new instance with the specified query string
      */
     abstract public function withQuery($query);
 
     /**
-     * Returns a new URI instance with the query constructed from the given parameters.
+     * Returns a URI instance with the query constructed from the given parameters.
      *
-     * The provided associative array will be used to construct the query string.
-     * Even characters such as the ampersand and equal sign will be encoded in
-     * resulting string. Note the any percent encoded characters will be double
-     * encoded, since this method assumes that all the values are unencoded.
+     * The provided associative array will be used to construct the query
+     * string. Even characters such as the ampersand and equal sign will be
+     * encoded in resulting string. Note the any percent encoded characters will
+     * be double encoded, since this method assumes that all the values are
+     * unencoded.
      *
      * @param array $parameters Parameters for the query
      * @return self A new instance with the specified query string

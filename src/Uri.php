@@ -5,7 +5,7 @@ namespace Riimu\Kit\UrlParser;
 use Psr\Http\Message\UriInterface;
 
 /**
- * Immutable URI value object for modifying and retrieving URI components.
+ * Immutable value object that represents a RFC3986 compliant URI.
  * @author Riikka Kalliomäki <riikka.kalliomaki@gmail.com>
  * @copyright Copyright (c) 2015, Riikka Kalliomäki
  * @license http://opensource.org/licenses/mit-license.php MIT License
@@ -37,9 +37,9 @@ class Uri implements UriInterface
 
     /**
      * Creates a new instance of Uri.
-     * @param string $uri The Uri provided as a string or empty string for none
-     * @param int $mode The parser mode for the Uri
-     * @throws \InvalidArgumentException If the provided Uri is invalid
+     * @param string $uri The URI provided as a string or empty string for none
+     * @param int $mode The parser mode used to parse the provided URI
+     * @throws \InvalidArgumentException If the provided URI is invalid
      */
     public function __construct($uri = '', $mode = UriParser::MODE_RFC3986)
     {
@@ -151,9 +151,6 @@ class Uri implements UriInterface
 
     /**
      * Returns the path component of the URI.
-     *
-     * If no path has been provided, an empty string will be returned instead.
-     *
      * @see https://tools.ietf.org/html/rfc3986#section-3.3
      * @return string The URI path or an empty string if no path has been provided
      */
@@ -164,10 +161,6 @@ class Uri implements UriInterface
 
     /**
      * Returns the query string of the URI.
-     *
-     * If no query string has been provided, an empty string will be returned
-     * instead.
-     *
      * @see https://tools.ietf.org/html/rfc3986#section-3.4
      * @return string The URI query string or an empty string if no query has been provided
      */
@@ -178,9 +171,6 @@ class Uri implements UriInterface
 
     /**
      * Returns the fragment component of the URI.
-     *
-     * If no fragment has been provided, an empty string will be returned instead.
-     *
      * @see https://tools.ietf.org/html/rfc3986#section-3.5
      * @return string The URI fragment or an empty string if no fragment has been provided
      */
@@ -190,12 +180,13 @@ class Uri implements UriInterface
     }
 
     /**
-     * Returns a new URI instance with the specified scheme.
+     * Returns a URI instance with the specified scheme.
      *
-     * This method allows all different kinds of schemes. Note, however,
-     * the different components are only validated based on the generic
-     * URI syntax. An empty string can be used to remove the scheme. Note
-     * that the provided scheme will be normalized to lowercase.
+     * This method allows all different kinds of schemes. Note, however, that
+     * the different components are only validated based on the generic URI
+     * syntax. No additional validation is performed based on the scheme. An
+     * empty string can be used to remove the scheme. Note that the provided
+     * scheme will be normalized to lowercase.
      *
      * @param string $scheme The scheme to use with the new instance
      * @return self A new instance with the specified scheme
@@ -214,11 +205,11 @@ class Uri implements UriInterface
     }
 
     /**
-     * Returns a new URI instance with the specified user information.
+     * Returns a URI instance with the specified user information.
      *
      * Note that the password is optional, but unless an username is provided,
      * the password will be ignored. Note that this method assumes that neither
-     * the username nor the password contains encoded characters. Thus, any
+     * the username nor the password contains encoded characters. Thus, all
      * encoded characters will be double encoded, if present. An empty username
      * can be used to remove the user information.
      *
@@ -241,11 +232,12 @@ class Uri implements UriInterface
     }
 
     /**
-     * Returns a new URI instance with the specified host.
+     * Returns a URI instance with the specified host.
      *
      * An empty host can be used to remove the host. Note that since host names
      * are treated in a case insensitive manner, the host will be normalized
-     * to lowercase.
+     * to lowercase. This method does not support international domain names and
+     * hosts with non ascii characters are considered invalid.
      *
      * @param string $host The hostname to use with the new instance
      * @return self A new instance with the specified host
@@ -263,7 +255,7 @@ class Uri implements UriInterface
     }
 
     /**
-     * Returns a new URI instance with the specified port.
+     * Returns a URI instance with the specified port.
      *
      * A null value can be used to remove the port number. Note that if an
      * invalid port number is provided (a number less than 0 or more than
@@ -287,13 +279,13 @@ class Uri implements UriInterface
     }
 
     /**
-     * Returns a new URI instance with the specified path.
+     * Returns a URI instance with the specified path.
      *
      * The provided path may or may not begin with a forward slash. The path
      * will be automatically normalized with the appropriate number of slashes
-     * once the Uri is generated. An empty string can be used to remove the
-     * path. The path may also contain percent encoded characters as these
-     * characters will not be double encoded.
+     * once the string is generated from the Uri instance. An empty string can
+     * be used to remove the path. The path may also contain percent encoded
+     * characters as these characters will not be double encoded.
      *
      * @param string $path The path to use with the new instance
      * @return self A new instance with the specified path
@@ -304,11 +296,11 @@ class Uri implements UriInterface
     }
 
     /**
-     * Returns a new URI instance with the specified query string.
+     * Returns a URI instance with the specified query string.
      *
      * An empty string can be used to remove the query string. The provided
-     * value may contain both encoded and decoded characters. Encoded characters
-     * will not be double encoded.
+     * value may contain both encoded and unencoded characters. Encoded
+     * characters will not be double encoded.
      *
      * @param string $query The query string to use with the new instance
      * @return self A new instance with the specified query string
@@ -319,11 +311,11 @@ class Uri implements UriInterface
     }
 
     /**
-     * Returns a new URI instance with the specified URI fragment.
+     * Returns a URI instance with the specified URI fragment.
      *
-     * An empty string can be used to remove the fragment. The provided value may
-     * contain both encoded and unencoded characters. The encoded characters will
-     * not be double encoded.
+     * An empty string can be used to remove the fragment. The provided value
+     * may contain both encoded and unencoded characters. Encoded characters
+     * will not be double encoded.
      *
      * @param string $fragment The fragment to use with the new instance
      * @return self A new instance with the specified fragment
@@ -337,7 +329,7 @@ class Uri implements UriInterface
      * Returns an Uri instance with the given value.
      * @param string $variable Name of the variable to change
      * @param mixed $value New value for the variable
-     * @return self A new instance or the same instance, if the value did not change
+     * @return self A new or the same instance depending on if the value changed
      */
     private function with($variable, $value)
     {
@@ -361,7 +353,7 @@ class Uri implements UriInterface
     {
         $pattern = sprintf(
             '/[^0-9a-zA-Z%s]|%%(?![0-9A-F]{2})/',
-            preg_quote('%-._~!$&\'()*+,;=' . $extra, '/')
+            preg_quote("%-._~!$&'()*+,;=" . $extra, '/')
         );
 
         return preg_replace_callback($pattern, function ($match) {
@@ -386,14 +378,14 @@ class Uri implements UriInterface
     }
 
     /**
-     * Returns the string representation for the URI.
+     * Returns the string representation of the URI.
      *
-     * The resulting URI will be composed of the provided components. Any components
-     * that have not been provided will be omitted from the constructed URI. The
-     * provided path will be normalized based on whether the authority is included
-     * in the URI or not.
+     * The resulting URI will be composed of the provided components. All
+     * components that have not been provided will be omitted from the generated
+     * URI. The provided path will be normalized based on whether the authority
+     * is included in the URI or not.
      *
-     * @return string The constructed URI
+     * @return string The string representation of the URI
      */
     public function __toString()
     {
@@ -407,7 +399,7 @@ class Uri implements UriInterface
     }
 
     /**
-     * Constructs string from non empty parts with specific formats.
+     * Constructs the string from the non empty parts with specific formats.
      * @param array $components Associative array of formats and values
      * @return string The constructed string
      */

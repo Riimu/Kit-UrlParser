@@ -22,7 +22,7 @@ class UriPattern
     /** @var string PCRE pattern that conforms to the host ABNF */
     private static $host;
 
-    /** @var bool Whether non ascii characters are allowed in certain sections or not */
+    /** @var bool Whether non ascii characters are allowed or not */
     private $allowNonAscii;
 
     /**
@@ -38,11 +38,11 @@ class UriPattern
     }
 
     /**
-     * Allows or forbids non ascii characters where ascii letters are allowed.
+     * Allows or forbids non ascii characters in some parts of the URI.
      *
      * When enabled, non ascii characters are allowed in `userinfo`, `reg_name`,
      * `path`, `query` and `fragment` parts of the URI. Note that pattern does
-     * not verify whether the bytes actually form valid UTF-8 characters or not.
+     * not verify whether the bytes actually form valid UTF-8 sequences or not.
      * Enabling this option simply allows bytes within the range of `x80-xFF`.
      *
      * @param bool $enabled True to allow, false to forbid
@@ -104,7 +104,7 @@ class UriPattern
      * Matches the string against the host ABNF.
      * @param string $host The string to match
      * @param array $matches Provides the matched sub sections from the match
-     * @return bool True if the scheme matches, false if not
+     * @return bool True if the host matches, false if not
      */
     public function matchHost($host, & $matches = [])
     {

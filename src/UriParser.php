@@ -5,18 +5,23 @@ namespace Riimu\Kit\UrlParser;
 /**
  * Provides a RFC 3986 compliant solution to URL parsing.
  *
- * UriParser provides a URL parsing method that accurately complies with the
- * specification. Unlike the built in function `parse_url()`, this library will
- * parse the URLs using a regular expression that has been built based on the
- * ABNF definition of the generic URI syntax. In other words, this library does
- * not allow any kind of invalid URLs and parses them exactly as defined in the
- * specification.
+ * UriParser provides a method for parsing URLs that accurately complies with
+ * the RFC specification. Unlike the built function `parse_url()`, the parser in
+ * this library is based on the ABNF definition of the generic URI syntax. In
+ * other words, this library does not allow any kind of invalid URLs and parses
+ * them exactly as defined in the specification.
  *
  * While the intention of this library is to provide an accurate implementation
- * for URL parsing, by employing the generic URI syntax, this library can be
- * used to parse any kind of URIs. The parser, however, will only validate that
- * the provided URI matches the generic URI syntax and it will not perform any
- * additional validation based on the scheme.
+ * for URL parsing, it possible to use this library for parsing any kind of
+ * valid URIs, since the parsing is simply based on the generic URI syntax.
+ * Some of the features are simply more suited to dealing with URLs. The parser,
+ * however, does not provide any additional validation based on the URI scheme.
+ *
+ * While the RFC specification does not allow UTF-8 characters in URIs, these
+ * are still commonly used, especially in user input. To accommodate this fact,
+ * the parser provides two additional compatibility modes that permit UTF-8 in
+ * some of the URI components in addition to providing a simple support for
+ * international domain names.
  *
  * @see https://tools.ietf.org/html/rfc3986
  * @author Riikka Kalliomäki <riikka.kalliomaki@gmail.com>
@@ -25,7 +30,7 @@ namespace Riimu\Kit\UrlParser;
  */
 class UriParser
 {
-    /** Parser mode that conforms strictly to the RFC 3986 specification */
+    /** Parsing mode that conforms strictly to the RFC 3986 specification */
     const MODE_RFC3986 = 1;
 
     /** Parsing mode that allows UTF-8 characters in some URI components */
@@ -35,7 +40,7 @@ class UriParser
     const MODE_IDNA2003 = 4;
 
     /** @var array<string,string> List of methods used to assign the URI components */
-    private static $mutators = [
+    private static $setters = [
         'scheme'        => 'withScheme',
         'host'          => 'withHost',
         'port'          => 'withPort',
@@ -60,6 +65,21 @@ class UriParser
 
     /**
      * Sets the parsing mode.
+     *
+     * The parser supports three different parsing modes as indicated by the
+     * available parsing mode constants. The modes are as follows:
+     *
+     *   * `MODE_RFC3986` adheres strictly to the RFC specification and does not
+     *     allow any non ascii characters in the URIs. This is the default mode.
+     *
+     *   * `MODE_UTF8` allows UTF-8 characters in the user information, path,
+     *     query and fragment components of the URI. These characters will be
+     *     converted to appropriate percent encoded sequences.
+     *
+     *   * `MODE_IDNA2003` also allows UTF-8 characters in the domain name and
+     *     converts the international domain name to ascii according to the IDNA
+     *     2003 standard.
+     *
      * @param int $mode One of the parsing mode constants
      */
     public function setMode($mode)
@@ -112,6 +132,7 @@ class UriParser
             return false;
         }
 
+        // Validate UTF-8 via regular expression to avoid mbstring dependency
         $pattern =
             '/^(?>
                 [\x00-\x7F]+                       # ASCII
@@ -140,14 +161,13 @@ class UriParser
             $components['host'] = $this->decodeHost($components['host']);
         }
 
-        foreach (array_intersect_key($components, self::$mutators) as $key => $value) {
-            $uri = call_user_func([$uri, self::$mutators[$key]], $value);
+        foreach (array_intersect_key(self::$setters, $components) as $key => $method) {
+            $uri = call_user_func([$uri, $method], $components[$key]);
         }
 
         if (isset($components['userinfo'])) {
             list($username, $password) = preg_split('/:|$/', $components['userinfo'], 2);
-
-            return $uri->withUserInfo(rawurldecode($username), rawurldecode($password));
+            $uri = $uri->withUserInfo(rawurldecode($username), rawurldecode($password));
         }
 
         return $uri;
