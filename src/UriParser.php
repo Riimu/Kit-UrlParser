@@ -69,16 +69,16 @@ class UriParser
      * The parser supports three different parsing modes as indicated by the
      * available parsing mode constants. The modes are as follows:
      *
-     *   * `MODE_RFC3986` adheres strictly to the RFC specification and does not
-     *     allow any non ascii characters in the URIs. This is the default mode.
+     * - `MODE_RFC3986` adheres strictly to the RFC specification and does not
+     *   allow any non ascii characters in the URIs. This is the default mode.
      *
-     *   * `MODE_UTF8` allows UTF-8 characters in the user information, path,
-     *     query and fragment components of the URI. These characters will be
-     *     converted to appropriate percent encoded sequences.
+     * - `MODE_UTF8` allows UTF-8 characters in the user information, path,
+     *   query and fragment components of the URI. These characters will be
+     *   converted to appropriate percent encoded sequences.
      *
-     *   * `MODE_IDNA2003` also allows UTF-8 characters in the domain name and
-     *     converts the international domain name to ascii according to the IDNA
-     *     2003 standard.
+     * - `MODE_IDNA2003` also allows UTF-8 characters in the domain name and
+     *   converts the international domain name to ascii according to the IDNA
+     *   2003 standard.
      *
      * @param int $mode One of the parsing mode constants
      */

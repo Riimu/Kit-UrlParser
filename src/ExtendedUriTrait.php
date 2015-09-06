@@ -15,7 +15,7 @@ namespace Riimu\Kit\UrlParser;
  */
 trait ExtendedUriTrait
 {
-    /** @var int[] List of known ports for different schemes */
+    /** @var array<string,int> List of known ports for different schemes */
     private static $standardPorts = [
         'ftp'   => 21,
         'http'  => 80,
@@ -32,9 +32,10 @@ trait ExtendedUriTrait
      * Returns the standard port for the current scheme.
      *
      * The known ports are:
-     *  - ftp   : 21
-     *  - http  : 80
-     *  - https : 443
+     *
+     * - ftp : 21
+     * - http : 80
+     * - https : 443
      *
      * @return int|null The standard port for the current scheme or null if not known
      */
