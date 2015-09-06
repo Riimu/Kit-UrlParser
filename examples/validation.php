@@ -1,30 +1,58 @@
 <?php
 
-require __DIR__ . '/../src/autoload.php';
+require __DIR__ . '/../vendor/autoload.php';
 
-function is_valid_url($url) {
-    static $parser = null;
+function getValidUrl($url)
+{
+    $parser = new \Riimu\Kit\UrlParser\UriParser();
+    $parser->setMode(\Riimu\Kit\UrlParser\UriParser::MODE_UTF8);
+    $uri = $parser->parse($url);
 
-    if ($parser === null) {
-        $parser = new \Riimu\Kit\UrlParser\UriParser();
-    }
-
-    if (($info = $parser->parseUrl($url)) === null) {
+    if ($uri === null) {
+        return false;
+    } elseif (!in_array($uri->getScheme(), ['http', 'https'], true)) {
+        return false;
+    } elseif ($uri->getTopLevelDomain() === $uri->getHost()) {
         return false;
     }
 
-    $scheme = $info->getScheme();
-    $host = $info->getHostname();
-
-    if ($scheme !== 'http' && $scheme !== 'https') {
-        return false;
-    } elseif ($host === false || strlen($host) < 4) {
-        return false;
-    }
-
-    return true;
+    return (string) $uri;
 }
 
+$normalized = null;
 
-var_dump(is_valid_url('http://www.example.com')); // true
-var_dump(is_valid_url('something else'));         // false
+if (isset($_POST['url'])) {
+    $normalized = getValidUrl($_POST['url']);
+}
+
+?>
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Validate an URL</title>
+ </head>
+ <body>
+<?php
+
+if ($normalized === false) {
+    printf(
+        "  <p>The URL '<code>%s</code>' is <b>not valid</b></p>" . PHP_EOL,
+        htmlspecialchars($_POST['url'], ENT_QUOTES | ENT_HTML5, 'UTF-8')
+    );
+} elseif ($normalized !== null) {
+    printf(
+        "  <p>The URL '<code>%s</code>' is valid!</p>" . PHP_EOL,
+        htmlspecialchars($normalized, ENT_QUOTES | ENT_HTML5, 'UTF-8')
+    );
+}
+
+?>
+  <h3>Validate an URL:</h3>
+  <form method="post"><div>
+   URL
+   <input type="text" name="url" />
+   <input type="submit" />
+  </div></form>
+ </body>
+</html>

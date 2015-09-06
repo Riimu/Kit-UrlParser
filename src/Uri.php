@@ -189,7 +189,7 @@ class Uri implements UriInterface
      * scheme will be normalized to lowercase.
      *
      * @param string $scheme The scheme to use with the new instance
-     * @return self A new instance with the specified scheme
+     * @return static A new instance with the specified scheme
      * @throws \InvalidArgumentException If the scheme is invalid
      */
     public function withScheme($scheme)
@@ -215,7 +215,7 @@ class Uri implements UriInterface
      *
      * @param string $user The username to use for the authority component
      * @param string|null $password The password associated with the user
-     * @return self A new instance with the specified user information
+     * @return static A new instance with the specified user information
      */
     public function withUserInfo($user, $password = null)
     {
@@ -240,7 +240,7 @@ class Uri implements UriInterface
      * hosts with non ascii characters are considered invalid.
      *
      * @param string $host The hostname to use with the new instance
-     * @return self A new instance with the specified host
+     * @return static A new instance with the specified host
      * @throws \InvalidArgumentException If the hostname is invalid.
      */
     public function withHost($host)
@@ -262,7 +262,7 @@ class Uri implements UriInterface
      * 65535), an exception will be thrown.
      *
      * @param int|null $port The port to use with the new instance
-     * @return self A new instance with the specified port
+     * @return static A new instance with the specified port
      * @throws \InvalidArgumentException If the port is invalid
      */
     public function withPort($port)
@@ -288,7 +288,7 @@ class Uri implements UriInterface
      * characters as these characters will not be double encoded.
      *
      * @param string $path The path to use with the new instance
-     * @return self A new instance with the specified path
+     * @return static A new instance with the specified path
      */
     public function withPath($path)
     {
@@ -303,7 +303,7 @@ class Uri implements UriInterface
      * characters will not be double encoded.
      *
      * @param string $query The query string to use with the new instance
-     * @return self A new instance with the specified query string
+     * @return static A new instance with the specified query string
      */
     public function withQuery($query)
     {
@@ -318,7 +318,7 @@ class Uri implements UriInterface
      * will not be double encoded.
      *
      * @param string $fragment The fragment to use with the new instance
-     * @return self A new instance with the specified fragment
+     * @return static A new instance with the specified fragment
      */
     public function withFragment($fragment)
     {
@@ -329,7 +329,7 @@ class Uri implements UriInterface
      * Returns an Uri instance with the given value.
      * @param string $variable Name of the variable to change
      * @param mixed $value New value for the variable
-     * @return self A new or the same instance depending on if the value changed
+     * @return static A new or the same instance depending on if the value changed
      */
     private function with($variable, $value)
     {

@@ -16,6 +16,12 @@ class ExtendedUriTraitTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('pass/word', $uri->getPassword());
     }
 
+    public function testPathSegmentKeys()
+    {
+        $this->assertSame(['foo', 'bar'], (new Uri())->withPath('foo/bar')->getPathSegments());
+        $this->assertSame(['foo', 'bar'], (new Uri())->withPath('/foo/bar')->getPathSegments());
+    }
+
     public function testPathSegmentEncoding()
     {
         $uri = (new Uri())->withPathSegments(['foo/bar', 'baz.html']);
@@ -48,11 +54,11 @@ class ExtendedUriTraitTest extends \PHPUnit_Framework_TestCase
 
     public function testTld()
     {
-        $this->assertSame('', (new Uri())->getTld());
-        $this->assertSame('com', (new Uri())->withHost('www.example.com')->getTld());
-        $this->assertSame('com', (new Uri())->withHost('www.example.com.')->getTld());
-        $this->assertSame('', (new Uri())->withHost('127.0.0.1')->getTld());
-        $this->assertSame('example', (new Uri())->withHost('example')->getTld());
+        $this->assertSame('', (new Uri())->getTopLevelDomain());
+        $this->assertSame('com', (new Uri())->withHost('www.example.com')->getTopLevelDomain());
+        $this->assertSame('com', (new Uri())->withHost('www.example.com.')->getTopLevelDomain());
+        $this->assertSame('', (new Uri())->withHost('127.0.0.1')->getTopLevelDomain());
+        $this->assertSame('example', (new Uri())->withHost('example')->getTopLevelDomain());
     }
 
     public function testPathExtension()

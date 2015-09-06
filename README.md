@@ -1,19 +1,28 @@
 # RFC 3986 URL Parser #
 
-*UrlParser* is PHP library that provides a [RFC 3986](http://www.ietf.org/rfc/rfc3986.txt)
-compliant URL parser. The purpose of this library is to parse information from
-URLs according to the ABNF definition described in the RFC documentation. In
-other words, this library simplifies getting the different components from URLs.
+*UrlParser* is PHP library that provides a [RFC 3986](https://tools.ietf.org/html/rfc3986)
+compliant URL parser and a [PSR-7](http://www.php-fig.org/psr/psr-7/) compatible
+URI component. The purpose of this library is to provide a parser that
+accurately implements the RFC specification, unlike the built in function
+`parse_url()`, which differs from the specification in some subtle ways.
 
-PHP already provides a built in function `parse_url()`. However, that function
-behaves somewhat differently from the RFC definition, since it is more lenient
-towards URLs that do not exactly fit the specification. This library provides
-a more accurate implementation for parsing and even for validating URLs.
+This library has two main purposes. The first to provide information from the
+parsed URLs. To provide information, this library implements the standard URI
+handling interface from the PSR-7 and also provides additional methods that make
+it easier to retrieve commonly used information from the URLs. The second
+purpose is to also permit the modification of said URLs using the interface from
+the PSR-7 standard in addition to few extra methods that make some tasks more
+straightforward.
 
-While this library is called *URL* parser, it does, in fact, conform to the
-generic *URI* syntax. Thus, it is entirely possible to parse any kind of URIs
-using this library. Some of the functionality is simply more useful when dealing
-with URLs.
+While this library is mainly intended for parsing URLs, the parsing is simply
+based on the generic URI syntax. Thus, it is possible to use this library to
+validate and parse any other types of URIs against the generic syntax. The
+library does not perform any `http` scheme specific validation for the URLs.
+
+In addition to the default RFC 3986 compliant mode, the library also offers
+options that allow parsing of URLs that contain UTF-8 characters in different
+components of the URL while converting them to the appropriate percent encoded
+and IDN ascii formats.
 
 The API documentation, which can be generated using Apigen, can be read online
 at: http://kit.riimu.net/api/urlparser/
@@ -28,6 +37,7 @@ In order to use this library, the following requirements must be met:
 
   * PHP version 5.4
   * [PSR Http Message](https://github.com/php-fig/http-message) library is required
+  * If you want parse IDNs, you must enable the php extension `intl`
   
 ## Installation ##
 
@@ -73,10 +83,11 @@ dependencies for you.
 
 ## Usage ##
 
-Using this library is relatively straightforward. The class `UrlParser` provides
-two methods for parsing URLs, which are `parseUrl()` and `parseRelative()`. Both
-of these methods take the URL as a parameter and return an instance of `UrlInfo`
-(or a `null` if the URL cannot be parsed).
+Using this library is relatively straightforward. The library provides a URL
+parsing class `UriParser` and an immutable value object class `Uri` that
+represents the URL. To parse an URL, you could simply provide the URL as a
+string to the `parse()` method in `UriParser` which returns an instance of `Uri`
+that has been generated from the parsed URL.
 
 For example:
 
@@ -84,77 +95,273 @@ For example:
 <?php
 
 require 'vendor/autoload.php';
-$parser = new \Riimu\Kit\UrlParser\UrlParser();
-$info = $parser->parseUrl('http://jane:pass123@www.example.com:8080/site/index.php?action=login&prev=index#form');
 
-// The following outputs: http://jane:pass123@www.example.com:8080/site/index.php?action=login&prev=index#form
-echo $info->getUrl() . PHP_EOL;
+$parser = new \Riimu\Kit\UrlParser\UriParser();
+$uri = $parser->parse('http://www.example.com');
 
-echo $info->getScheme() . PHP_EOL;        // outputs: http
-echo $info->getUsername() . PHP_EOL;      // outputs: jane
-echo $info->getPassword() . PHP_EOL;      // outputs: pass123
-echo $info->getHostname() . PHP_EOL;      // outputs: www.example.com
-echo $info->getIpAddress() . PHP_EOL;     // outputs: 93.184.216.34
-echo $info->getPort() . PHP_EOL;          // outputs: 8080
-echo $info->getDefaultPort() . PHP_EOL;   // outputs: 80
-echo $info->getPath() . PHP_EOL;          // outputs: /site/index.php
-echo $info->getFileExtension() . PHP_EOL; // outputs: php
-echo $info->getQuery() . PHP_EOL;         // outputs: action=login&prev=index
-echo $info->getFragment() . PHP_EOL;      // outputs: form
-
-// The following would dump the array ['action' => 'login', 'prev' => 'index']
-var_dump($info->getVariables());
+echo $uri->getHost(); // Outputs 'www.example.com'
 ```
 
-The difference between `parseUrl()` and `parseRelative()` is that the former
-conforms to the `URI` definition, while the latter conforms to the
-`relative-ref` definition. In other words, URLs parsed by `parseUrl()` must have
-scheme part, but URLs parsed by `parseRelative()` cannot have scheme.
+Alternatively, you can just skip using the `UriParser` completely and simply
+provide the URL as a constructor parameter to the `Uri`:
 
-### Retrieving information ###
+```php
+<?php
 
-Both of the parsing methods return an instance of `UrlInfo` class. This class
-provides the following relevant method for retrieving information about the URL:
+require 'vendor/autoload.php';
+$uri = new \Riimu\Kit\UrlParser\Uri('http://www.example.com');
+echo $uri->getHost(); // Outputs 'www.example.com'
+```
 
-  * `getUrl()` returns the entire parsed URL in it's original form.
+The main difference between using the `parse()` method and the constructor is
+that the `parse()` method will return a `null` if the provided URL is not a
+valid url, while the constructor will throw an `InvalidArgumentException`.
+
+To retrieve different types of information from the URL, the `Uri` class
+provides various different methods to help you. Here is a simple example as an
+overview of the different available methods:
+
+```php
+<?php
+
+require 'vendor/autoload.php';
+
+$parser = new \Riimu\Kit\UrlParser\UriParser();
+$uri = $parser->parse('http://jane:pass123@www.example.com:8080/site/index.php?action=login&prev=index#form');
+
+echo $uri->getScheme() . PHP_EOL;         // outputs: http
+echo $uri->getUsername() . PHP_EOL;       // outputs: jane
+echo $uri->getPassword() . PHP_EOL;       // outputs: pass123
+echo $uri->getHost() . PHP_EOL;           // outputs: www.example.com
+echo $uri->getTopLevelDomain() . PHP_EOL; // outputs: com
+echo $uri->getPort() . PHP_EOL;           // outputs: 8080
+echo $uri->getStandardPort() . PHP_EOL;   // outputs: 80
+echo $uri->getPath() . PHP_EOL;           // outputs: /site/index.php
+echo $uri->getPathExtension() . PHP_EOL;  // outputs: php
+echo $uri->getQuery() . PHP_EOL;          // outputs: action=login&prev=index
+echo $uri->getFragment() . PHP_EOL;       // outputs: form
+
+print_r($uri->getPathSegments());    // [0 => 'site', 1 => => 'index.php']
+print_r($uri->getQueryParameters()); // ['action' => 'login', 'prev' => 'index']
+```
+
+The `Uri` component also provides various methods for modifying the URL, which
+allows you to construct new URLs from separate components or modify existing
+ones. Note that the `Uri` component is an immutable value object, which means
+that each of the modifying methods return a new `Uri` instance instead of 
+modifying the existing one. Here is a simple example of constructing an URL
+from it's components:
+
+```php
+<?php
+
+require 'vendor/autoload.php';
+
+$uri = (new \Riimu\Kit\UrlParser\Uri())
+    ->withScheme('http')
+    ->withUserInfo('jane', 'pass123')
+    ->withHost('www.example.com')
+    ->withPort(8080)
+    ->withPath('/site/index.php')
+    ->withQueryParameters(['action' => 'login', 'prev' => 'index'])
+    ->withFragment('form');
+
+// Outputs: http://jane:pass123@www.example.com:8080/site/index.php?action=login&prev=index#form
+echo $uri;
+```
+
+As can be seen from the previous example, the `Uri` component also provides a
+`__toString()` method that provides the URL as a string.
+
+### Retrieving Information ###
+
+Here is the list of methods that the `Uri` component provides for retrieving
+information from the URL:
+
+  * `getScheme()` returns the scheme from the URL or an empty string if the URL
+    has no scheme.
+    
+  * `getAuthority()` returns the component from the URL that consists of the
+    username, password, hostname and port in the format `user-info@hostname:port`
+    
+  * `getUserInfo()` returns the component from the URL that contains the
+    username and password separated by a colon.
+    
+  * `getUsername()` returns the *decoded* username from the URL or an empty
+    string if there is no username present in the URL.
+    
+  * `getPassword()` returns the *decoded* password from the URL or an empty
+    string if there is no password present in the URL.
+    
+  * `getHost()` return the hostname from the URL or an empty string if the URL
+    has no host.
   
-  * `getScheme()` returns the scheme from the URL or false if it's not present.
+  * `getIpAddress()` returns the IP address from the host, if the host is an
+    IP address. Otherwise this method will return `null`. If an IPv6 address
+    was provided, the address is returned without the surrounding braces.
+    
+  * `getTopLevelDomain()` returns the top level domain from the host. If there
+    is no host or the host is an IP address, an empty string will be returned
+    instead.
+    
+  * `getPort()` returns the port from the URL or a `null` if there is no port
+    present in the url. This method will also return a `null` if the port is the
+    standard port for the current scheme (e.g. 80 for http).
+    
+  * `getStandardPort()` returns the standard port for the current scheme. If
+    there is no scheme or the standard port for the scheme is no known, a `null`
+    will be returned instead.
+    
+  * `getPath()` returns the path from the URL or an empty string if the URL has
+    no path.
+    
+  * `getPathSegments()` returns an array of *decoded* path segments (i.e. the
+    path split by each forward slash). Empty path segments are discarded and not
+    included in the returned array.
+    
+  * `getPathExtension()` returns the file extension from the path or an empty
+    string if the URL has no path.
+    
+  * `getQuery()` returns the query string from the URL or an empty string if the
+    URL has no query string.
+    
+  * `getQueryParameters()` parses the query string from the URL using the
+    `parse_str()` function and returns the array of parsed values.
+    
+  * `getFragment()` returns the fragment from the URL or an empty string if the
+    URL has no fragment.
+    
+  * `__toString()` returns the URL as a string.
+
+### Modifying the URL ###
+
+The `Uri` component provides various methods that can be used to modify URLs
+and construct new ones. Note that since the `Uri` class is an immutable value
+object, each method returns a new instance of `Uri` rather than modifying the
+existing one.
+
+  * `withScheme($scheme)` returns a new instance with the given scheme. An empty
+    scheme can be used to remove the scheme from the URL. Note that any provided
+    scheme is normalized to lowercase.
   
-  * `getUsername()` returns the username from the URL or false if it's not
-    present.
-  
-  * `getPassword()` returns the password from the URL or false if it's not
-    present.
-  
-  * `getHostname()` returns the hostname from the URL (or the IP address, if
-    URL had an IP address instead of a hostname) or false if it's not present.
+  * `withUserInfo($user, $password = null)` returns a new instance with the
+    given username and password. Note that the password is ignored unless an
+    username is provided. Empty username can be used to remove the username and
+    password from the URL. Any character that cannot be inserted in the URL by
+    itself will be percent encoded.
     
-  * `getIpAddress($resolve = true)` returns the IP address for the hostname.
-    If the parameter is set to false, the method will only return the IP address
-    if it was present in the URL in the first place. False is returned, if the
-    IP address cannot be determined.
+  * `withHost($host)` returns a new instance with the given host. An empty host
+    can be used to remove the host from the URL. Note that this method does not
+    accept international domain names. Note that this method will also normalize
+    the host to lowercase.
     
-  * `getPort($useDefault = true)` returns the port in the URL. If the first
-    parameter is set to true, then the default port for the scheme will be
-    returned if no port is present in the URL. Otherwise, false will be returned.
+  * `withPort($port)` returns a new instance with the given port. A `null` can
+    be used to remove the port from the URL.
     
-  * `getDefaultPort()` returns the default port for the scheme or false if it is
-    not known.
+  * `withPath($path)` returns a new instance with the given path. An empty path
+    can be used to remove the path from the URL. Note that any character that is
+    not a valid path character will be percent encoded in the URL. Existing
+    percent encoded characters will not be double encoded, however.
     
-  * `getPath()` returns the path from the URL or an empty string if no path is
-    present.
+  * `withPathSegments(array $segments)` returns a new instance with the path
+    constructed from the array of path segments. All invalid path characters in
+    the segments will be percent encoded, including the forward slash and
+    existing percent encoded characters.
     
-  * `getFileExtension()` returns the file extension from the path or false if
-    there is no file extension.
+  * `withQuery($query)` returns a new instance with the given query string. An
+    empty query string can be used to remove the path from the URL. Note that
+    any character that is not a valid query string character will be percent
+    encoded in the URL. Existing percent encoded characters will not be double
+    encoded, however.
     
-  * `getQuery()` returns the query from the URL as a string or false if it is
-    not present.
+  * `withQueryParameters(array $parameters)` returns a new instance with the
+    query string constructed from the provided parameters using the
+    `http_build_query()` function. All invalid query string characters in the
+    parameters will be percent encoded, including the ampersand, equal sign and
+    existing percent encoded characters.
     
-  * `getVariables()` returns the query parsed into variables or an empty array
-    if there are no variables to parse in the query.
+  * `withFragment($fragment)` returns a new instance with the given fragment. An
+    empty string can be used to remove the fragment from the URL. Note that any
+    character that is not a valid fragment character will be percent encoded in
+    the URL. Existing percent encoded characters will not be double encoded,
+    however.
     
-  * `getFragment()` returns the fragment from the URL or false if it is not
-    present.
+### UTF-8 and International Domains Names ###
+
+By default, this library provides a parser that is RFC 3986 compliant. This
+specification does not permit the use of UTF-8 characters in the domain name or
+various other parts of the URL. The correct representation for these in the URL
+is to use the IDN standard for domain names and percent encoding the UTF-8
+characters in other parts.
+
+To help you with these endeavors, many of the methods in the `Uri` component
+will automatically percent encode any characters that cannot be inserted in the
+URL on their own, including UTF-8 characters. Due to complexities involved, the
+`withHost()` method does not allow UTF-8 encoded characters, however.
+
+By default, the parser also does not parse any URLs that include UTF-8 encoded
+characters, because that would be against the RFC specification. However, the
+parser does provide two additional parsing modes that allows these characters
+whenever possible.
+
+If you wish to parse URLs that may contain UTF-8 characters in the user
+information (i.e. the username or password), path, query or fragment components
+of the URL, you can simply use the UTF-8 parsing mode. For example:
+
+```php
+<?php
+
+require 'vendor/autoload.php';
+
+$parser = new \Riimu\Kit\UrlParser\UriParser();
+$parser->setMode(\Riimu\Kit\UrlParser\UriParser::MODE_UTF8);
+
+$uri = $parser->parse('http://www.example.com/föö/bär.html');
+echo $uri->getPath(); // Outputs: /f%C3%B6%C3%B6/b%C3%A4r.html
+```
+
+UTF-8 characters in the domain name, however, are a bit more complex issue. The
+parser, however, does provide a rudimentary support for parsing these domain
+names using the IDNA2003 mode. For example:
+
+```php
+<?php
+
+require 'vendor/autoload.php';
+
+$parser = new \Riimu\Kit\UrlParser\UriParser();
+$parser->setMode(\Riimu\Kit\UrlParser\UriParser::MODE_IDNA2003);
+
+$uri = $parser->parse('http://www.fööbär.com');
+echo $uri->getHost(); // Outputs: www.xn--fbr-rla2ga.com
+```
+
+Note that using this parsing mode requires the PHP extension `intl` to be
+enabled. The appropriate parsing mode can also be provided the constructor of
+the `Uri` component using the second constructor parameter.
+
+While support for parsing these UTF-8 characters is available, this library does
+not provide any methods for the reverse operations since the purpose of this
+library is to deal with RFC 3986 compliant URIs.
+
+### URL Normalization ###
+
+Due to the fact that the RFC 3986 specification defines some URLs as equivalent
+despite having some slight differences, this library does some minimal
+normalization to the provided values. You may encounter these instances when,
+for example, parsing URLs provided by users. The most notable normalizations you
+may encounter are:
+
+  * The `scheme` and `host` components are considered case insensitive. Thus
+    these components will always be normalized to lower case.
+  * The port number will not be included in the strings returned by
+    `getAuthority()` and `__toString()` if the port is the standard port for the
+    current scheme.
+  * Percent encodings are treated case insensitive and this library will
+    automatically normalize all percent encoding representations to upper case.
+  * The number of forward slashes in the beginning of the path in the string
+    returned by `__toString()` may change depending on whether the URL has an
+    `authority` component or not.
 
 ### URL validation ###
 

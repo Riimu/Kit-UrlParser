@@ -114,7 +114,7 @@ trait ExtendedUriTrait
      *
      * @return string The top level domain or an empty string, if no TLD is present
      */
-    public function getTld()
+    public function getTopLevelDomain()
     {
         if ($this->getIpAddress() !== null) {
             return '';
@@ -143,10 +143,10 @@ trait ExtendedUriTrait
      */
     public function getPathSegments()
     {
-        return array_map(
+        return array_values(array_map(
             'rawurldecode',
             array_filter(explode('/', $this->getPath()), 'strlen')
-        );
+        ));
     }
 
     /**
@@ -186,7 +186,7 @@ trait ExtendedUriTrait
     /**
      * Returns a URI instance with the specified path.
      * @param string $path The path to use with the new instance
-     * @return self A new instance with the specified path
+     * @return static A new instance with the specified path
      */
     abstract public function withPath($path);
 
@@ -199,7 +199,7 @@ trait ExtendedUriTrait
      * the provided segments.
      *
      * @param string[] $segments Path segments for the new path
-     * @return self A new instance with the specified path
+     * @return static A new instance with the specified path
      */
     public function withPathSegments(array $segments)
     {
@@ -211,7 +211,7 @@ trait ExtendedUriTrait
     /**
      * Returns a URI instance with the specified query string.
      * @param string $query The query string to use with the new instance
-     * @return self A new instance with the specified query string
+     * @return static A new instance with the specified query string
      */
     abstract public function withQuery($query);
 
@@ -225,7 +225,7 @@ trait ExtendedUriTrait
      * unencoded.
      *
      * @param array $parameters Parameters for the query
-     * @return self A new instance with the specified query string
+     * @return static A new instance with the specified query string
      */
     public function withQueryParameters(array $parameters)
     {
