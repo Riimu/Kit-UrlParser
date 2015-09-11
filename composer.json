@@ -1,32 +1,27 @@
 {
-  "name": "riimu/kit-urlparser",
-  "type": "library",
-  "description": "RFC 3986 compliant url parsing library",
-  "homepage": "http://kit.riimu.net",
-  "keywords": [
-    "rfc",
-    "3986",
-    "url",
-    "parser"
-  ],
-  "license": "MIT",
-  "authors": [
-    {
-      "name": "Riikka Kalliomäki",
-      "email": "riikka.kalliomaki@gmail.com",
-      "homepage": "http://riimu.net"
+    "name": "riimu/kit-urlparser",
+    "type": "library",
+    "description": "RFC 3986 compliant url parsing library with PSR-7 Uri component",
+    "homepage": "http://kit.riimu.net",
+    "keywords": ["url", "uri", "parser", "psr-7", "rfc3986"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Riikka Kalliomäki",
+            "email": "riikka.kalliomaki@gmail.com",
+            "homepage": "http://riimu.net"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "psr/http-message": "1.*"
+    },
+    "suggest": {
+        "ext-intl": "Required to parse URIs with IDNs"
+    },
+    "autoload": {
+        "psr-4": {
+            "Riimu\\Kit\\UrlParser\\": "src/"
+        }
     }
-  ],
-  "require": {
-    "php": ">=5.4.0",
-    "psr/http-message": "1.*"
-  },
-  "suggest": {
-    "ext-intl": "Required to parse URIs with IDNs"
-  },
-  "autoload": {
-    "psr-4": {
-      "Riimu\\Kit\\UrlParser\\": "src/"
-    }
-  }
 }
