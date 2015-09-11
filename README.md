@@ -3,7 +3,7 @@
 *UrlParser* is PHP library that provides a [RFC 3986](https://tools.ietf.org/html/rfc3986)
 compliant URL parser and a [PSR-7](http://www.php-fig.org/psr/psr-7/) compatible
 URI component. The purpose of this library is to provide a parser that
-accurately implements the RFC specification, unlike the built in function
+accurately implements the RFC specification unlike the built in function
 `parse_url()`, which differs from the specification in some subtle ways.
 
 This library has two main purposes. The first to provide information from the
@@ -358,8 +358,8 @@ may encounter are as follows:
   * The port number will not be included in the strings returned by
     `getAuthority()` and `__toString()` if the port is the standard port for the
     current scheme.
-  * Percent encodings are treated in case insensitive sensitive manner. Thus,
-    this library will normalize the hexadecimal characters to upper case.
+  * Percent encodings are treated in case insensitive manner. Thus, this library
+    will normalize the hexadecimal characters to upper case.
   * The number of forward slashes in the beginning of the path in the string
     returned by `__toString()` may change depending on whether the URL has an
     `authority` component or not.
