@@ -7,17 +7,17 @@ accurately implements the RFC specification, unlike the built in function
 `parse_url()`, which differs from the specification in some subtle ways.
 
 This library has two main purposes. The first to provide information from the
-parsed URLs. To provide information, this library implements the standard URI
-handling interface from the PSR-7 and also provides additional methods that make
-it easier to retrieve commonly used information from the URLs. The second
-purpose is to also permit the modification of said URLs using the interface from
-the PSR-7 standard in addition to few extra methods that make some tasks more
+parsed URLs. To achive this, the library implements the standard URI handling
+interface from the PSR-7 and also provides additional methods that make it
+easier to retrieve commonly used information from the URLs. The second purpose
+is to also permit the modification of said URLs using the interface from the
+PSR-7 standard in addition to few extra methods that make some tasks more
 straightforward.
 
 While this library is mainly intended for parsing URLs, the parsing is simply
 based on the generic URI syntax. Thus, it is possible to use this library to
 validate and parse any other types of URIs against the generic syntax. The
-library does not perform any `http` scheme specific validation for the URLs.
+library does not perform any scheme specific validation for the URLs.
 
 In addition to the default RFC 3986 compliant mode, the library also offers
 options that allow parsing of URLs that contain UTF-8 characters in different
@@ -37,7 +37,7 @@ In order to use this library, the following requirements must be met:
 
   * PHP version 5.4
   * [PSR Http Message](https://github.com/php-fig/http-message) library is required
-  * If you want parse IDNs, you must enable the php extension `intl`
+  * In order to parse IDNs, the php extension `intl` must be enabled
   
 ## Installation ##
 
@@ -209,8 +209,8 @@ information from the URL:
     standard port for the current scheme (e.g. 80 for http).
     
   * `getStandardPort()` returns the standard port for the current scheme. If
-    there is no scheme or the standard port for the scheme is no known, a `null`
-    will be returned instead.
+    there is no scheme or the standard port for the scheme is not known, a
+    `null` will be returned instead.
     
   * `getPath()` returns the path from the URL or an empty string if the URL has
     no path.
@@ -288,19 +288,20 @@ existing one.
     
 ### UTF-8 and International Domains Names ###
 
-By default, this library provides a parser that is RFC 3986 compliant. This
+By default, this library provides a parser that is RFC 3986 compliant. The RFC
 specification does not permit the use of UTF-8 characters in the domain name or
-various other parts of the URL. The correct representation for these in the URL
-is to use the IDN standard for domain names and percent encoding the UTF-8
+any other parts of the URL. The correct representation for these in the URL is
+to use the an IDN standard for domain names and percent encoding the UTF-8
 characters in other parts.
 
-To help you with these endeavors, many of the methods in the `Uri` component
-will automatically percent encode any characters that cannot be inserted in the
-URL on their own, including UTF-8 characters. Due to complexities involved, the
-`withHost()` method does not allow UTF-8 encoded characters, however.
+However, to help you deal with UTF-8 encoded characters, many of the methods in
+the `Uri` component will automatically percent encode any characters that cannot
+be inserted in the URL on their own, including UTF-8 characters. Due to
+complexities involved, however, the `withHost()` method does not allow UTF-8
+encoded characters.
 
 By default, the parser also does not parse any URLs that include UTF-8 encoded
-characters, because that would be against the RFC specification. However, the
+characters because that would be against the RFC specification. However, the
 parser does provide two additional parsing modes that allows these characters
 whenever possible.
 
@@ -337,7 +338,7 @@ echo $uri->getHost(); // Outputs: www.xn--fbr-rla2ga.com
 ```
 
 Note that using this parsing mode requires the PHP extension `intl` to be
-enabled. The appropriate parsing mode can also be provided the constructor of
+enabled. The appropriate parsing mode can also be provided to the constructor of
 the `Uri` component using the second constructor parameter.
 
 While support for parsing these UTF-8 characters is available, this library does
@@ -350,29 +351,18 @@ Due to the fact that the RFC 3986 specification defines some URLs as equivalent
 despite having some slight differences, this library does some minimal
 normalization to the provided values. You may encounter these instances when,
 for example, parsing URLs provided by users. The most notable normalizations you
-may encounter are:
+may encounter are as follows:
 
-  * The `scheme` and `host` components are considered case insensitive. Thus
+  * The `scheme` and `host` components are considered case insensitive. Thus,
     these components will always be normalized to lower case.
   * The port number will not be included in the strings returned by
     `getAuthority()` and `__toString()` if the port is the standard port for the
     current scheme.
-  * Percent encodings are treated case insensitive and this library will
-    automatically normalize all percent encoding representations to upper case.
+  * Percent encodings are treated in case insensitive sensitive manner. Thus,
+    this library will normalize the hexadecimal characters to upper case.
   * The number of forward slashes in the beginning of the path in the string
     returned by `__toString()` may change depending on whether the URL has an
     `authority` component or not.
-
-### URL validation ###
-
-Since both of the parsing methods return a `null` if the URL is not valid, it is
-possible to use this library for validating URLs. However, it should be noted
-that the URI specification is very generic. For example, 'a:' is a valid URI.
-The parser only makes sure that the URL follows the correct format.
-
-Thus, if you want to use this library for validating URLs, it is also highly
-recommended to also use the methods such as `getScheme()` and `getHostname()`
-to make sure that the URL contains something valid.
 
 ## Credits ##
 

@@ -1,6 +1,6 @@
 # Changelog #
 
-## v2.0.0 (?) ##
+## v2.0.0 (2015-09-11) ##
 
   * The `UrlInfo` has been renamed to`Uri`
   * The `UrlParser` has been renamed to `UriParser`
