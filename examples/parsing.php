@@ -17,7 +17,7 @@ echo $uri->getPathExtension() . PHP_EOL;  // outputs: php
 echo $uri->getQuery() . PHP_EOL;          // outputs: action=login&prev=index
 echo $uri->getFragment() . PHP_EOL;       // outputs: form
 
-print_r($uri->getPathSegments());    // [0 => 'site', 1 => => 'index.php']
+print_r($uri->getPathSegments());    // [0 => 'site', 1 => 'index.php']
 print_r($uri->getQueryParameters()); // ['action' => 'login', 'prev' => 'index']
 
 // Outputs: http://jane:pass123@www.example.com:8080/site/index.php?action=login&prev=index#form
