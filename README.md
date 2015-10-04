@@ -363,6 +363,10 @@ may encounter are as follows:
   * The number of forward slashes in the beginning of the path in the string
     returned by `__toString()` may change depending on whether the URL has an
     `authority` component or not.
+  * Percent encoded characters in parsed and generated URIs in the `userinfo`
+    component may differ due to the fact that the `UriParser` works with the
+    PSR-7 specification which does not provide a way to provide encoded username
+    or password.
 
 ## Credits ##
 

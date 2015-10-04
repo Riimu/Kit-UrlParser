@@ -38,14 +38,14 @@ class UriTest extends \PHPUnit_Framework_TestCase
         $this->assertUri('', (new Uri())->withUserInfo('', 'password'));
     }
 
-    public function testPath()
+    public function testPathWithoutAuthorityOrScheme()
     {
         $this->assertUri('path/to/file.html', (new Uri())->withPath('path/to/file.html'));
         $this->assertUri('/path/to/file.html', (new Uri())->withPath('/path/to/file.html'));
         $this->assertUri('/path/to/file.html', (new Uri())->withPath('//path/to/file.html'));
     }
 
-    public function testSchemePath()
+    public function testPathWithScheme()
     {
         $uri = (new Uri())->withScheme('scheme');
 
@@ -54,7 +54,7 @@ class UriTest extends \PHPUnit_Framework_TestCase
         $this->assertUri('scheme:/path/to/file.html', $uri->withPath('//path/to/file.html'));
     }
 
-    public function testAuthorityPath()
+    public function testPathWithAuthority()
     {
         $uri = (new Uri())->withHost('www.example.com');
 
@@ -139,6 +139,18 @@ class UriTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertUri('//www.example.com', (new Uri())->withHost('WWW.EXAMPLE.COM'));
         $this->assertUri('scheme:', (new Uri())->withScheme('SCHEME'));
+    }
+
+    public function testArrayAsPath()
+    {
+        $uri = new Uri();
+
+        try {
+            $uri = $uri->withPath(['foo', 'bar']);
+        } catch (\Exception $exception) {
+        }
+
+        $this->assertInternalType('string', $uri->getPath());
     }
 
     public function testImmutability()

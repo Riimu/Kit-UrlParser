@@ -54,9 +54,10 @@ class Uri implements UriInterface
                 throw new \InvalidArgumentException("Invalid URI '$uri'");
             }
 
-            foreach (get_object_vars($parsed) as $name => $value) {
+            $properties = get_object_vars($parsed);
+            array_walk($properties, function ($value, $name) {
                 $this->$name = $value;
-            }
+            });
         }
     }
 
@@ -373,7 +374,7 @@ class Uri implements UriInterface
             function ($match) {
                 return strtoupper($match[0]);
             },
-            $string
+            (string) $string
         );
     }
 
@@ -424,7 +425,7 @@ class Uri implements UriInterface
 
         if ($this->getAuthority() === '') {
             return preg_replace('#^/+#', '/', $path);
-        } elseif (in_array(substr($path, 0, 1), [false, '/'], true)) {
+        } elseif ($path === '' || $path[0] === '/') {
             return $path;
         }
 
