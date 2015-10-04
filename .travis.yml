@@ -27,5 +27,5 @@ script:
 
 after_script:
   - if [ -f coverage.clover ]; then
-      php ocular.phar code-coverage:upload --format=php-clover coverage.clover
+      php ocular.phar code-coverage:upload --format=php-clover coverage.clover;
     fi
