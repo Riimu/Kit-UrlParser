@@ -26,7 +26,6 @@ script:
   - vendor/bin/php-cs-fixer fix --dry-run --diff
 
 after_script:
-  - |
-    if [ -f coverage.clover ] then
+  - if [ -f coverage.clover ]; then
       php ocular.phar code-coverage:upload --format=php-clover coverage.clover
     fi
