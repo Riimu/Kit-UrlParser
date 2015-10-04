@@ -1,5 +1,10 @@
 # Changelog #
 
+## v2.0.1 (2015-10-04) ##
+
+  * Fix forward slash normalization in some URIs in PHP7
+  * Fix several methods accidentally accepting string arrays
+
 ## v2.0.0 (2015-09-11) ##
 
   * The `UrlInfo` has been renamed to`Uri`

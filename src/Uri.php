@@ -374,7 +374,7 @@ class Uri implements UriInterface
             function ($match) {
                 return strtoupper($match[0]);
             },
-            $string
+            (string) $string
         );
     }
 
