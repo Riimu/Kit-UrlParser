@@ -2,8 +2,7 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
-function getValidUrl($url)
-{
+$getValidUrl = function ($url) {
     $parser = new \Riimu\Kit\UrlParser\UriParser();
     $parser->setMode(\Riimu\Kit\UrlParser\UriParser::MODE_UTF8);
     $uri = $parser->parse($url);
@@ -17,12 +16,12 @@ function getValidUrl($url)
     }
 
     return (string) $uri;
-}
+};
 
 $normalized = null;
 
 if (isset($_POST['url'])) {
-    $normalized = getValidUrl($_POST['url']);
+    $normalized = $getValidUrl($_POST['url']);
 }
 
 ?>
