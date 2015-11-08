@@ -1,5 +1,9 @@
 # Changelog #
 
+## v2.0.2 (2015-11-08) ##
+
+  * Address minor coding standards issues
+
 ## v2.0.1 (2015-10-04) ##
 
   * Fix forward slash normalization in some URIs in PHP7

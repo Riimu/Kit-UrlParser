@@ -30,6 +30,8 @@ at: http://kit.riimu.net/api/urlparser/
 [![Build Status](https://img.shields.io/travis/Riimu/Kit-UrlParser.svg?style=flat)](https://travis-ci.org/Riimu/Kit-UrlParser)
 [![Code Coverage](https://img.shields.io/scrutinizer/coverage/g/Riimu/Kit-UrlParser.svg?style=flat)](https://scrutinizer-ci.com/g/Riimu/Kit-UrlParser/)
 [![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/Riimu/Kit-UrlParser.svg?style=flat)](https://scrutinizer-ci.com/g/Riimu/Kit-UrlParser/)
+[![HHVM Status](https://img.shields.io/hhvm/riimu/Kit-UrlParser.svg)](http://hhvm.h4cc.de/package/riimu/Kit-UrlParser)
+[![PHP7 Status](https://img.shields.io/badge/PHP7-tested-brightgreen.svg)]()
 
 ## Requirements ##
 
@@ -38,7 +40,7 @@ In order to use this library, the following requirements must be met:
   * PHP version 5.4
   * [PSR Http Message](https://github.com/php-fig/http-message) library is required
   * In order to parse IDNs, the php extension `intl` must be enabled
-  
+
 ## Installation ##
 
 This library can be installed by using [Composer](http://getcomposer.org/). In
@@ -148,7 +150,7 @@ print_r($uri->getQueryParameters()); // ['action' => 'login', 'prev' => 'index']
 The `Uri` component also provides various methods for modifying the URL, which
 allows you to construct new URLs from separate components or modify existing
 ones. Note that the `Uri` component is an immutable value object, which means
-that each of the modifying methods return a new `Uri` instance instead of 
+that each of the modifying methods return a new `Uri` instance instead of
 modifying the existing one. Here is a simple example of constructing an URL
 from it's components:
 
@@ -180,57 +182,57 @@ information from the URL:
 
   * `getScheme()` returns the scheme from the URL or an empty string if the URL
     has no scheme.
-    
+
   * `getAuthority()` returns the component from the URL that consists of the
     username, password, hostname and port in the format `user-info@hostname:port`
-    
+
   * `getUserInfo()` returns the component from the URL that contains the
     username and password separated by a colon.
-    
+
   * `getUsername()` returns the *decoded* username from the URL or an empty
     string if there is no username present in the URL.
-    
+
   * `getPassword()` returns the *decoded* password from the URL or an empty
     string if there is no password present in the URL.
-    
+
   * `getHost()` return the hostname from the URL or an empty string if the URL
     has no host.
-  
+
   * `getIpAddress()` returns the IP address from the host, if the host is an
     IP address. Otherwise this method will return `null`. If an IPv6 address
     was provided, the address is returned without the surrounding braces.
-    
+
   * `getTopLevelDomain()` returns the top level domain from the host. If there
     is no host or the host is an IP address, an empty string will be returned
     instead.
-    
+
   * `getPort()` returns the port from the URL or a `null` if there is no port
     present in the url. This method will also return a `null` if the port is the
     standard port for the current scheme (e.g. 80 for http).
-    
+
   * `getStandardPort()` returns the standard port for the current scheme. If
     there is no scheme or the standard port for the scheme is not known, a
     `null` will be returned instead.
-    
+
   * `getPath()` returns the path from the URL or an empty string if the URL has
     no path.
-    
+
   * `getPathSegments()` returns an array of *decoded* path segments (i.e. the
     path split by each forward slash). Empty path segments are discarded and not
     included in the returned array.
-    
+
   * `getPathExtension()` returns the file extension from the path or an empty
     string if the URL has no path.
-    
+
   * `getQuery()` returns the query string from the URL or an empty string if the
     URL has no query string.
-    
+
   * `getQueryParameters()` parses the query string from the URL using the
     `parse_str()` function and returns the array of parsed values.
-    
+
   * `getFragment()` returns the fragment from the URL or an empty string if the
     URL has no fragment.
-    
+
   * `__toString()` returns the URL as a string.
 
 ### Modifying the URL ###
@@ -243,49 +245,49 @@ existing one.
   * `withScheme($scheme)` returns a new instance with the given scheme. An empty
     scheme can be used to remove the scheme from the URL. Note that any provided
     scheme is normalized to lowercase.
-  
+
   * `withUserInfo($user, $password = null)` returns a new instance with the
     given username and password. Note that the password is ignored unless an
     username is provided. Empty username can be used to remove the username and
     password from the URL. Any character that cannot be inserted in the URL by
     itself will be percent encoded.
-    
+
   * `withHost($host)` returns a new instance with the given host. An empty host
     can be used to remove the host from the URL. Note that this method does not
     accept international domain names. Note that this method will also normalize
     the host to lowercase.
-    
+
   * `withPort($port)` returns a new instance with the given port. A `null` can
     be used to remove the port from the URL.
-    
+
   * `withPath($path)` returns a new instance with the given path. An empty path
     can be used to remove the path from the URL. Note that any character that is
     not a valid path character will be percent encoded in the URL. Existing
     percent encoded characters will not be double encoded, however.
-    
+
   * `withPathSegments(array $segments)` returns a new instance with the path
     constructed from the array of path segments. All invalid path characters in
     the segments will be percent encoded, including the forward slash and
     existing percent encoded characters.
-    
+
   * `withQuery($query)` returns a new instance with the given query string. An
     empty query string can be used to remove the path from the URL. Note that
     any character that is not a valid query string character will be percent
     encoded in the URL. Existing percent encoded characters will not be double
     encoded, however.
-    
+
   * `withQueryParameters(array $parameters)` returns a new instance with the
     query string constructed from the provided parameters using the
     `http_build_query()` function. All invalid query string characters in the
     parameters will be percent encoded, including the ampersand, equal sign and
     existing percent encoded characters.
-    
+
   * `withFragment($fragment)` returns a new instance with the given fragment. An
     empty string can be used to remove the fragment from the URL. Note that any
     character that is not a valid fragment character will be percent encoded in
     the URL. Existing percent encoded characters will not be double encoded,
     however.
-    
+
 ### UTF-8 and International Domains Names ###
 
 By default, this library provides a parser that is RFC 3986 compliant. The RFC
