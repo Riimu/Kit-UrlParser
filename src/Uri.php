@@ -7,7 +7,7 @@ use Psr\Http\Message\UriInterface;
 /**
  * Immutable value object that represents a RFC3986 compliant URI.
  * @author Riikka Kalliomäki <riikka.kalliomaki@gmail.com>
- * @copyright Copyright (c) 2015, Riikka Kalliomäki
+ * @copyright Copyright (c) 2015-2017 Riikka Kalliomäki
  * @license http://opensource.org/licenses/mit-license.php MIT License
  */
 class Uri implements UriInterface
