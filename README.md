@@ -24,20 +24,18 @@ options that allow parsing of URLs that contain UTF-8 characters in different
 components of the URL while converting them to the appropriate percent encoded
 and IDN ascii formats.
 
-The API documentation, which can be generated using Apigen, can be read online
-at: http://kit.riimu.net/api/urlparser/
+The API documentation is available at: http://kit.riimu.net/api/urlparser/
 
-[![Build Status](https://img.shields.io/travis/Riimu/Kit-UrlParser.svg?style=flat)](https://travis-ci.org/Riimu/Kit-UrlParser)
-[![Code Coverage](https://img.shields.io/scrutinizer/coverage/g/Riimu/Kit-UrlParser.svg?style=flat)](https://scrutinizer-ci.com/g/Riimu/Kit-UrlParser/)
-[![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/Riimu/Kit-UrlParser.svg?style=flat)](https://scrutinizer-ci.com/g/Riimu/Kit-UrlParser/)
-[![HHVM Status](https://img.shields.io/hhvm/riimu/Kit-UrlParser.svg)](http://hhvm.h4cc.de/package/riimu/Kit-UrlParser)
-[![PHP7 Status](https://img.shields.io/badge/PHP7-tested-brightgreen.svg)]()
+[![Travis](https://img.shields.io/travis/Riimu/Kit-UrlParser.svg?style=flat-square)](https://travis-ci.org/Riimu/Kit-UrlParser)
+[![Scrutinizer](https://img.shields.io/scrutinizer/g/Riimu/Kit-UrlParser.svg?style=flat-square)](https://scrutinizer-ci.com/g/Riimu/Kit-UrlParser/)
+[![Scrutinizer Coverage](https://img.shields.io/scrutinizer/coverage/g/Riimu/Kit-UrlParser.svg?style=flat-square)](https://scrutinizer-ci.com/g/Riimu/Kit-UrlParser/)
+[![Packagist](https://img.shields.io/packagist/v/Riimu/Kit-UrlParser.svg?style=flat-square)](https://packagist.org/packages/riimu/kit-urlparser)
 
 ## Requirements ##
 
 In order to use this library, the following requirements must be met:
 
-  * PHP version 5.4
+  * PHP version 5.6
   * [PSR Http Message](https://github.com/php-fig/http-message) library is required
   * In order to parse IDNs, the php extension `intl` must be enabled
 
