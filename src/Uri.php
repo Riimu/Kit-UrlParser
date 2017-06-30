@@ -242,7 +242,7 @@ class Uri implements UriInterface
      *
      * @param string $host The hostname to use with the new instance
      * @return static A new instance with the specified host
-     * @throws \InvalidArgumentException If the hostname is invalid.
+     * @throws \InvalidArgumentException If the hostname is invalid
      */
     public function withHost($host)
     {

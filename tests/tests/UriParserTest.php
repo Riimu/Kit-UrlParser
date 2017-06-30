@@ -2,7 +2,9 @@
 
 namespace Riimu\Kit\UrlParser;
 
-class UriParserTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class UriParserTest extends TestCase
 {
     public function testFullUri()
     {
@@ -86,6 +88,11 @@ class UriParserTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param mixed $case
+     * @param mixed $scheme
+     * @param mixed $host
+     * @param mixed $path
+     * @param mixed $string
      * @dataProvider getCornerCases
      */
     public function testCornerCase($case, $scheme, $host, $path, $string)

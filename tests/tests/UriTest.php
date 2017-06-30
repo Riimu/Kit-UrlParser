@@ -2,12 +2,14 @@
 
 namespace Riimu\Kit\UrlParser;
 
+use PHPUnit\Framework\TestCase;
+
 /**
  * @author Riikka Kalliomäki <riikka.kalliomaki@gmail.com>
  * @copyright Copyright (c) 2015, Riikka Kalliomäki
  * @license http://opensource.org/licenses/mit-license.php MIT License
  */
-class UriTest extends \PHPUnit_Framework_TestCase
+class UriTest extends TestCase
 {
     public function testEmptyUri()
     {
@@ -176,7 +178,7 @@ class UriTest extends \PHPUnit_Framework_TestCase
     {
         $uri = new Uri();
 
-        $this->setExpectedException('InvalidArgumentException');
+        $this->expectException('InvalidArgumentException');
         $uri->withScheme('-invalid-');
     }
 
@@ -184,7 +186,7 @@ class UriTest extends \PHPUnit_Framework_TestCase
     {
         $uri = new Uri();
 
-        $this->setExpectedException('InvalidArgumentException');
+        $this->expectException('InvalidArgumentException');
         $uri->withHost('[invalid]');
     }
 
@@ -192,7 +194,7 @@ class UriTest extends \PHPUnit_Framework_TestCase
     {
         $uri = new Uri();
 
-        $this->setExpectedException('InvalidArgumentException');
+        $this->expectException('InvalidArgumentException');
         $uri->withPort(-1);
     }
 
@@ -200,13 +202,13 @@ class UriTest extends \PHPUnit_Framework_TestCase
     {
         $uri = new Uri();
 
-        $this->setExpectedException('InvalidArgumentException');
+        $this->expectException('InvalidArgumentException');
         $uri->withPort(65536);
     }
 
     public function testInvalidUri()
     {
-        $this->setExpectedException('InvalidArgumentException');
+        $this->expectException('InvalidArgumentException');
         new Uri('http&:');
     }
 
@@ -218,7 +220,7 @@ class UriTest extends \PHPUnit_Framework_TestCase
 
     public function testInvalidParsingMode()
     {
-        $this->setExpectedException('InvalidArgumentException');
+        $this->expectException('InvalidArgumentException');
         new Uri('/föö/bär.html', UriParser::MODE_RFC3986);
     }
 
