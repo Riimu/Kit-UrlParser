@@ -7,7 +7,7 @@ accurately implements the RFC specification unlike the built in function
 `parse_url()`, which differs from the specification in some subtle ways.
 
 This library has two main purposes. The first to provide information from the
-parsed URLs. To achive this, the library implements the standard URI handling
+parsed URLs. To achieve this, the library implements the standard URI handling
 interface from the PSR-7 and also provides additional methods that make it
 easier to retrieve commonly used information from the URLs. The second purpose
 is to also permit the modification of said URLs using the interface from the
