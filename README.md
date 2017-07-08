@@ -29,7 +29,7 @@ The API documentation is available at: http://kit.riimu.net/api/urlparser/
 [![Travis](https://img.shields.io/travis/Riimu/Kit-UrlParser.svg?style=flat-square)](https://travis-ci.org/Riimu/Kit-UrlParser)
 [![Scrutinizer](https://img.shields.io/scrutinizer/g/Riimu/Kit-UrlParser.svg?style=flat-square)](https://scrutinizer-ci.com/g/Riimu/Kit-UrlParser/)
 [![Scrutinizer Coverage](https://img.shields.io/scrutinizer/coverage/g/Riimu/Kit-UrlParser.svg?style=flat-square)](https://scrutinizer-ci.com/g/Riimu/Kit-UrlParser/)
-[![Packagist](https://img.shields.io/packagist/v/Riimu/Kit-UrlParser.svg?style=flat-square)](https://packagist.org/packages/riimu/kit-urlparser)
+[![Packagist](https://img.shields.io/packagist/v/riimu/kit-urlparser.svg?style=flat-square)](https://packagist.org/packages/riimu/kit-urlparser)
 
 ## Requirements ##
 
