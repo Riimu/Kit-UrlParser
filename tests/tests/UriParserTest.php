@@ -13,10 +13,7 @@ class UriParserTest extends TestCase
 {
     public function testFullUri()
     {
-        $parser = new UriParser();
-        $uri = $parser->parse(
-            'scheme://username:password@www.example.com:8080/path/to/file.html?query=string#fragment'
-        );
+        $uri = $this->parse('scheme://username:password@www.example.com:8080/path/to/file.html?query=string#fragment');
 
         $this->assertSame('scheme', $uri->getScheme());
         $this->assertSame('username:password', $uri->getUserInfo());
@@ -30,10 +27,7 @@ class UriParserTest extends TestCase
 
     public function testRelativeUri()
     {
-        $parser = new UriParser();
-        $uri = $parser->parse(
-            '//username:password@www.example.com:8080/path/to/file.html?query=string#fragment'
-        );
+        $uri = $this->parse('//username:password@www.example.com:8080/path/to/file.html?query=string#fragment');
 
         $this->assertSame('', $uri->getScheme());
         $this->assertSame('username:password', $uri->getUserInfo());
@@ -58,7 +52,7 @@ class UriParserTest extends TestCase
     public function testBacktrackLimits($uri)
     {
         $parser = new UriParser();
-        $this->assertInstanceOf('Riimu\Kit\UrlParser\Uri', $parser->parse($uri));
+        $this->assertInstanceOf(Uri::class, $parser->parse($uri));
     }
 
     /**
@@ -76,20 +70,16 @@ class UriParserTest extends TestCase
 
     public function testHostMatching()
     {
-        $parser = new UriParser();
-
-        $this->assertSame('www.example.com', $parser->parse('//www.example.com')->getHost());
-        $this->assertSame('www.example.com', $parser->parse('www.example.com')->getPath());
+        $this->assertSame('www.example.com', $this->parse('//www.example.com')->getHost());
+        $this->assertSame('www.example.com', $this->parse('www.example.com')->getPath());
     }
 
     public function testIpAddressMatching()
     {
-        $parser = new UriParser();
-
-        $this->assertSame(null, $parser->parse('//127-0-0-1')->getIpAddress());
-        $this->assertSame('127.0.0.1', $parser->parse('//127.0.0.1')->getIpAddress());
-        $this->assertSame('2001:db8::ff00:42:8329', $parser->parse('//[2001:db8::ff00:42:8329]')->getIpAddress());
-        $this->assertSame('future', $parser->parse('//[vF.future]')->getIpAddress());
+        $this->assertNull($this->parse('//127-0-0-1')->getIpAddress());
+        $this->assertSame('127.0.0.1', $this->parse('//127.0.0.1')->getIpAddress());
+        $this->assertSame('2001:db8::ff00:42:8329', $this->parse('//[2001:db8::ff00:42:8329]')->getIpAddress());
+        $this->assertSame('future', $this->parse('//[vF.future]')->getIpAddress());
     }
 
     /**
@@ -102,10 +92,8 @@ class UriParserTest extends TestCase
      */
     public function testCornerCase($case, $scheme, $host, $path, $string)
     {
-        $parser = new UriParser();
-        $uri = $parser->parse($case);
+        $uri = $this->parse($case);
 
-        $this->assertInstanceOf('Riimu\Kit\UrlParser\Uri', $uri);
         $this->assertSame($scheme, $uri->getScheme());
         $this->assertSame($host, $uri->getHost());
         $this->assertSame($path, $uri->getPath());
@@ -145,7 +133,7 @@ class UriParserTest extends TestCase
         $parser->setMode(UriParser::MODE_UTF8);
 
         $this->assertInstanceOf(
-            'Riimu\Kit\UrlParser\Uri',
+            Uri::class,
             $parser->parse('http://usernäme:pässwörd@www.example.com/föö/bär.html?föö=bär#fööbär')
         );
 
@@ -163,7 +151,7 @@ class UriParserTest extends TestCase
         $parser->setMode(UriParser::MODE_IDNA2003);
         $uri = $parser->parse('http://www.fööbär.com');
 
-        $this->assertInstanceOf('Riimu\Kit\UrlParser\Uri', $uri);
+        $this->assertInstanceOf(Uri::class, $uri);
         $this->assertSame('www.xn--fbr-rla2ga.com', $uri->getHost());
     }
 
@@ -182,5 +170,19 @@ class UriParserTest extends TestCase
     {
         $parser = new UriParser();
         $this->assertNull($parser->parse('http://www.example.com:65536'));
+    }
+
+    /**
+     * @param $uri
+     * @return Uri
+     */
+    private function parse($uri)
+    {
+        $parser = new UriParser();
+        $instance = $parser->parse($uri);
+
+        $this->assertInstanceOf(Uri::class, $instance);
+
+        return $instance;
     }
 }

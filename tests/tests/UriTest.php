@@ -178,7 +178,7 @@ class UriTest extends TestCase
     {
         $uri = new Uri();
 
-        $this->expectException('InvalidArgumentException');
+        $this->expectException(\InvalidArgumentException::class);
         $uri->withScheme('-invalid-');
     }
 
@@ -186,7 +186,7 @@ class UriTest extends TestCase
     {
         $uri = new Uri();
 
-        $this->expectException('InvalidArgumentException');
+        $this->expectException(\InvalidArgumentException::class);
         $uri->withHost('[invalid]');
     }
 
@@ -194,7 +194,7 @@ class UriTest extends TestCase
     {
         $uri = new Uri();
 
-        $this->expectException('InvalidArgumentException');
+        $this->expectException(\InvalidArgumentException::class);
         $uri->withPort(-1);
     }
 
@@ -202,13 +202,13 @@ class UriTest extends TestCase
     {
         $uri = new Uri();
 
-        $this->expectException('InvalidArgumentException');
+        $this->expectException(\InvalidArgumentException::class);
         $uri->withPort(65536);
     }
 
     public function testInvalidUri()
     {
-        $this->expectException('InvalidArgumentException');
+        $this->expectException(\InvalidArgumentException::class);
         new Uri('http&:');
     }
 
@@ -220,7 +220,7 @@ class UriTest extends TestCase
 
     public function testInvalidParsingMode()
     {
-        $this->expectException('InvalidArgumentException');
+        $this->expectException(\InvalidArgumentException::class);
         new Uri('/föö/bär.html', UriParser::MODE_RFC3986);
     }
 
@@ -231,7 +231,7 @@ class UriTest extends TestCase
      */
     private function assertUri($expected, $uri)
     {
-        $this->assertInstanceOf('Riimu\Kit\UrlParser\Uri', $uri);
+        $this->assertInstanceOf(Uri::class, $uri);
         $generated = $uri->__toString();
 
         $this->assertSame($expected, $generated);

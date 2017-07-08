@@ -48,7 +48,7 @@ class ExtendedUriTraitTest extends TestCase
 
     public function testIpAddress()
     {
-        $this->assertSame(null, (new Uri())->withHost('www.example.com')->getIpAddress());
+        $this->assertNull((new Uri())->withHost('www.example.com')->getIpAddress());
         $this->assertSame('127.0.0.1', (new Uri())->withHost('127.0.0.1')->getIpAddress());
         $this->assertSame('2001:db8::ff00:42:8329', (new Uri())->withHost('[2001:db8::ff00:42:8329]')->getIpAddress());
         $this->assertSame('future', (new Uri())->withHost('[vF.future]')->getIpAddress());
