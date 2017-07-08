@@ -1,5 +1,11 @@
 # Changelog #
 
+## Unreleased
+
+  * Minor bundled autoloader improvements
+  * Minor improvements to the build process
+  * Address minor code quality issues in tests
+
 ## v2.1.0 (2017-06-30) ##
 
   * Increase the minimum PHP version requirement to 5.6
