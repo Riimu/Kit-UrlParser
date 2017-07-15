@@ -1,6 +1,6 @@
 <?php
 
-require __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 $getValidUrl = function ($url) {
     $parser = new \Riimu\Kit\UrlParser\UriParser();

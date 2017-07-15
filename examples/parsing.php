@@ -1,6 +1,6 @@
 <?php
 
-require __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 $parser = new \Riimu\Kit\UrlParser\UriParser();
 $uri = $parser->parse('http://jane:pass123@www.example.com:8080/site/index.php?action=login&prev=index#form');
