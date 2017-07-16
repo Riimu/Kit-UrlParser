@@ -22,7 +22,7 @@ install:
   - travis_retry wget https://scrutinizer-ci.com/ocular.phar
 
 script:
-  - vendor/bin/phpcs --standard=PSR2 src tests
+  - vendor/bin/phpcs -p --standard=PSR2 src tests
   - vendor/bin/php-cs-fixer fix -v --dry-run --allow-risky=yes --using-cache=no
   - if is_hhvm; then echo "xdebug.enable = On" >> /etc/hhvm/php.ini; else mv -v "$XDEBUG.disabled" "$XDEBUG"; fi
   - vendor/bin/phpunit --coverage-clover=coverage.clover --coverage-text
