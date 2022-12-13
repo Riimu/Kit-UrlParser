@@ -329,7 +329,7 @@ echo $uri->getPath(); // Outputs: /f%C3%B6%C3%B6/b%C3%A4r.html
 
 UTF-8 characters in the domain name, however, are a bit more complex issue. The
 parser, however, does provide a rudimentary support for parsing these domain
-names using the IDNA2003 mode. For example:
+names using the IDNA mode. For example:
 
 ```php
 <?php
@@ -337,7 +337,7 @@ names using the IDNA2003 mode. For example:
 require 'vendor/autoload.php';
 
 $parser = new \Riimu\Kit\UrlParser\UriParser();
-$parser->setMode(\Riimu\Kit\UrlParser\UriParser::MODE_IDNA2003);
+$parser->setMode(\Riimu\Kit\UrlParser\UriParser::MODE_IDNA);
 
 $uri = $parser->parse('http://www.fööbär.com');
 echo $uri->getHost(); // Outputs: www.xn--fbr-rla2ga.com

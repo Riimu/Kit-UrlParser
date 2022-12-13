@@ -152,7 +152,11 @@ class UriTest extends TestCase
         } catch (\Exception $exception) {
         }
 
-        $this->assertInternalType('string', $uri->getPath());
+        if (method_exists($this, 'assertIsString')) {
+            $this->assertIsString('string', $uri->getPath());
+        } else {
+            $this->assertInternalType('string', $uri->getPath());
+        }
     }
 
     public function testImmutability()

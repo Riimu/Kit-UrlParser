@@ -157,7 +157,7 @@ trait ExtendedUriTrait
     {
         $segments = $this->getPathSegments();
         $filename = array_pop($segments);
-        $extension = strrchr($filename, '.');
+        $extension = strrchr((string) $filename, '.');
 
         if ($extension === false) {
             return '';

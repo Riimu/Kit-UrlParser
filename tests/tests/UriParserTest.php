@@ -148,7 +148,7 @@ class UriParserTest extends TestCase
         }
 
         $parser = new UriParser();
-        $parser->setMode(UriParser::MODE_IDNA2003);
+        $parser->setMode(UriParser::MODE_IDNA);
         $uri = $parser->parse('http://www.fööbär.com');
 
         $this->assertInstanceOf(Uri::class, $uri);
@@ -162,8 +162,10 @@ class UriParserTest extends TestCase
         }
 
         $parser = new UriParser();
-        $parser->setMode(UriParser::MODE_IDNA2003);
-        $this->assertNull($parser->parse("http://www.\xE2\xAC\x8C.com"));
+        $parser->setMode(UriParser::MODE_IDNA);
+
+        // Code point 33C2, SQUARE AM, disallowed in all IDNA variants
+        $this->assertNull($parser->parse("http://www.\xE3\x8F\x82.com"));
     }
 
     public function testBadPortNumber()
