@@ -4,7 +4,9 @@
 
   * Add support for PHP 8.2
   * Fix passing nulls to string functions
-  * DEPRECATED `UriParser::MODE_IDNA2003` in favor of `UriParser::MODE_IDNA`
+  * Deprecated `UriParser::MODE_IDNA2003`
+    * Added `UriParser::MODE_IDNA`, which should be used instead
+    * Internally, the parser will now use UTS46 mode whenever it is available
   * Minor bundled autoloader improvements
   * Address minor code quality issues in tests
   * Update CI to use Github Actions

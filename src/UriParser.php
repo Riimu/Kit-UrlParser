@@ -194,7 +194,8 @@ class UriParser
             throw new \InvalidArgumentException("Invalid hostname '$hostname'");
         }
 
-        $hostname = idn_to_ascii($hostname);
+        $mode = defined('INTL_IDNA_VARIANT_UTS46') ? INTL_IDNA_VARIANT_UTS46 : INTL_IDNA_VARIANT_2003;
+        $hostname = idn_to_ascii($hostname, IDNA_DEFAULT, $mode);
 
         if ($hostname === false) {
             throw new \InvalidArgumentException("Invalid hostname '$hostname'");
