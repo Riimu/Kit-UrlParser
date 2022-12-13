@@ -1,3 +1,7 @@
+.phpunit.cache
 build/
 vendor/
-composer.lock
+
+examples/dbconf.php
+
+.php-cs-fixer.cache

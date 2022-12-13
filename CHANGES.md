@@ -5,6 +5,8 @@
   * Minor bundled autoloader improvements
   * Minor improvements to the build process
   * Address minor code quality issues in tests
+  * Add tests builds to support PHP 8.2
+  * Update CI to use Github Actions
 
 ## v2.1.0 (2017-06-30) ##
 
