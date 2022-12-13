@@ -376,6 +376,6 @@ may encounter are as follows:
 
 ## Credits ##
 
-This library is Copyright (c) 2013-2017 Riikka Kalliomäki.
+This library is Copyright (c) 2013-2022 Riikka Kalliomäki.
 
 See LICENSE for license and copying information.

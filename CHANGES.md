@@ -1,6 +1,6 @@
 # Changelog #
 
-## Unreleased
+## v2.2.0 (2022-12-13) ##
 
   * Add support for PHP 8.2
   * Fix passing nulls to string functions
