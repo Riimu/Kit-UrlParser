@@ -17,8 +17,8 @@ trait ExtendedUriTrait
 {
     /** @var array<string,int> List of known ports for different schemes */
     private static $standardPorts = [
-        'ftp'   => 21,
-        'http'  => 80,
+        'ftp' => 21,
+        'http' => 80,
         'https' => 443,
     ];
 

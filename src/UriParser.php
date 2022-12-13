@@ -37,7 +37,7 @@ class UriParser
     const MODE_UTF8 = 2;
 
     /**
-     * Parsing mode that also converts international domain names to ascii
+     * Parsing mode that also converts international domain names to ascii.
      * @deprecated Use MODE_IDNA instead
      * @see UriParser::MODE_IDNA
      */
@@ -48,15 +48,15 @@ class UriParser
 
     /** @var array<string,string> List of methods used to assign the URI components */
     private static $setters = [
-        'scheme'        => 'withScheme',
-        'host'          => 'withHost',
-        'port'          => 'withPort',
-        'path_abempty'  => 'withPath',
+        'scheme' => 'withScheme',
+        'host' => 'withHost',
+        'port' => 'withPort',
+        'path_abempty' => 'withPath',
         'path_absolute' => 'withPath',
         'path_noscheme' => 'withPath',
         'path_rootless' => 'withPath',
-        'query'         => 'withQuery',
-        'fragment'      => 'withFragment',
+        'query' => 'withQuery',
+        'fragment' => 'withFragment',
     ];
 
     /** @var int The current parsing mode */
