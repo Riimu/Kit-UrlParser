@@ -24,7 +24,7 @@ jobs:
           php-version: ${{ matrix.php-version }}
           package: phpunit/phpunit
       - name: Run PHPUnit
-        run: composer test
+        run: composer test -- --do-not-cache-result
   PHP_CodeSniffer:
     runs-on: ubuntu-latest
     steps:
