@@ -84,4 +84,4 @@ jobs:
       - name: Fetch Ocular
         run: mkdir -p tools/ocular && composer require --working-dir=tools/ocular scrutinizer/ocular
       - name: Upload Scrutinizer coverage
-        run: ./tools/ocular/vendor/bin/ocular code-coverage:upload --format=php-clover coverage.xml
+        run: ./tools/ocular/vendor/bin/ocular code-coverage:upload --revision="${{ github.event.pull_request.head.sha || github.sha }}" --format=php-clover coverage.xml
