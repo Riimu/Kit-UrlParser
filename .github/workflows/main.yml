@@ -80,6 +80,6 @@ jobs:
       - name: Upload Codecov coverage
         uses: codecov/codecov-action@v3
       - name: Fetch Ocular
-        run: wget https://scrutinizer-ci.com/ocular.phar
+        run: mkdir -p tools/ocular && composer require --working-directory=tools/ocular scrutinizer/ocular
       - name: Upload Scrutinizer coverage
-        run: php ocular.phar code-coverage:upload --format=php-clover coverage.clover
+        run: ./tools/ocular/vendor/bin/ocular code-coverage:upload --format=php-clover coverage.clover
